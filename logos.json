@@ -1,0 +1,19 @@
+{
+  "logos": [
+    {
+      "name": "github",
+      "file": "components/logos/github.tsx",
+      "createdAt": "2025-08-23T11:48:07.673Z"
+    },
+    {
+      "name": "linkedin",
+      "file": "components/logos/linkedin.tsx",
+      "createdAt": "2025-08-23T11:48:20.994Z"
+    },
+    {
+      "name": "x-formerly-twitter",
+      "file": "components/logos/x-formerly-twitter.tsx",
+      "createdAt": "2025-08-23T11:49:46.431Z"
+    }
+  ]
+}
