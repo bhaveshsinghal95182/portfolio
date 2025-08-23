@@ -88,7 +88,7 @@ export default function Home() {
         {/* Intro Text */}
         <div className="intro-text">
           <p className="text-justify tracking-tight font-jost text-muted-black text-sm/snug">
-            Hi there, I'm Bhavesh, a 21 y/o CS Student at MMDU Haryana, who
+            Hi there, I&apos;m Bhavesh, a 21 y/o CS Student at MMDU Haryana, who
             loves to <span className="font-semibold">code</span> and make my
             life a little easier with the help of{" "}
             <span className="font-semibold">technology</span>. In my spare time,
