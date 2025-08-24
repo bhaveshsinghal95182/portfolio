@@ -71,12 +71,12 @@ export default function Projects({ LINK_SIZE }: ProjectsProps) {
           className="text-black transition-colors duration-200 group-hover:text-accent"
         />
         You can check out more of my work on{" "}
-        <a
-          href="https://github.com/Bhvavesh"
+        <Link
+          href="https://github.com/bhaveshsinghal95182"
           className="font-bold transition-colors duration-200 group-hover:text-accent"
         >
           GitHub.
-        </a>
+        </Link>
       </div>
     </div>
   );
