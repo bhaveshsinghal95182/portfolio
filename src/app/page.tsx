@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/nav";
 import Links from "@/components/links";
 import Projects from "@/components/projects";
@@ -8,7 +7,7 @@ const LINK_SIZE = 13;
 export default function Home() {
   return (
     <section className="page flex justify-center px-4 ">
-      <div className="w-[400px] md:w-[600px]">
+      <div className="max-w-[400px] md:max-w-[600px]">
         <Navbar />
         <h1 className="-tracking-[0.06em] text-primary font-playfair text-4xl">
           Bhvavesh Singhal

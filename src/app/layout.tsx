@@ -60,7 +60,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${bricolageGrotesque.variable} ${jost.variable} ${poppins.variable} ${southera.className} antialiased`}
+        className={`${geistMono.variable} ${playfairDisplay.variable} ${bricolageGrotesque.variable} ${jost.variable} ${poppins.variable} ${southera.className} ${geistSans.variable} antialiased`}
       >
         <PageTransition svg={<Logo />} animation="wipe" blocks={10}>
           {children}

@@ -16,6 +16,12 @@ export default function Navbar() {
         >
           AI
         </Link>
+        <Link
+          href="/achievements"
+          className="uppercase font-mono font-medium text-[#141414] text-[0.9rem]"
+        >
+          Achievements
+        </Link>
       </div>
     </nav>
   );
