@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ArrowTopRight2 from "@/components/arrow-up";
+import Bulb2Fill from "./bulb";
 
 const projects = [
   {
@@ -63,6 +64,19 @@ export default function Projects({ LINK_SIZE }: ProjectsProps) {
             </Link>
           </div>
         ))}
+      </div>
+      <div className="group mt-2 p-2 px-4 bg-accent/15 border border-black rounded-2xl text-xs font-jost flex gap-1">
+        <Bulb2Fill
+          size="16"
+          className="text-black transition-colors duration-200 group-hover:text-accent"
+        />
+        You can check out more of my work on{" "}
+        <a
+          href="https://github.com/Bhvavesh"
+          className="font-bold transition-colors duration-200 group-hover:text-accent"
+        >
+          GitHub.
+        </a>
       </div>
     </div>
   );
