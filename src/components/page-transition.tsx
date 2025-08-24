@@ -37,7 +37,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({
   blocks = 20,
   strokeColor = undefined,
   fillColor = "#e3e4d8",
-  drawDuration = 2,
+  drawDuration = 1,
   fillDuration = 1,
   animation = "wipe",
 }) => {
@@ -210,19 +210,14 @@ const PageTransition: React.FC<PageTransitionProps> = ({
       )
       .to(pathEl!, {
         strokeDashoffset: 0,
-        duration: drawDuration,
+        duration: drawDuration * 2,
         ease: "power2.inOut",
-      }, "-=0.5")
-      .to(pathEl!, {
-        fill: fillColor,
-        duration: fillDuration,
-        ease: "power2.out",
       }, "-=0.5")
       .to(logoOverlayRef.current, {
         opacity: 0,
         duration: 0.25,
         ease: "power2.out",
-      });
+      }, "+=0.5"); 
   };
 
   const revealPage = () => {
