@@ -25,10 +25,6 @@ export default function AchievementsPage() {
             Contributed to <span className="font-bold">open-source</span>{" "}
             projects on GitHub.
           </li>
-          <li className="font-poppins text-muted-black text-sm">
-            Purchased a <span className="font-bold">bike</span> with my own
-            earnings.
-          </li>
         </ul>
       </div>
     </section>
