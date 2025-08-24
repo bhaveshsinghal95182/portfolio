@@ -10,14 +10,19 @@
   --font-bricolage: var(--font-bricolage-grotesque);
   --font-jost: var(--font-jost);
   --font-poppins: var(--font-poppins);
+  --font-southera: var(--font-southera);
   --color-muted-black: #353535;
-  --color-primary: #E65959;
+  --color-primary: #e65959;
+  --color-accent: #e65959;
 }
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: white;
 }
 
 /* Navbar */
@@ -105,8 +110,4 @@ a {
 
 .links {
   margin-top: 16px;
-}
-
-.projects {
-  margin-top: 32px;
 }

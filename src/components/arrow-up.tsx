@@ -12,9 +12,9 @@ const ArrowTopRight2 = ({ size }: ArrowTopRight2Props) => (
     <path
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
       d="M16 16V8H8"
     />
   </svg>
