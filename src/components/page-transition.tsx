@@ -210,14 +210,14 @@ const PageTransition: React.FC<PageTransitionProps> = ({
       )
       .to(pathEl!, {
         strokeDashoffset: 0,
-        duration: drawDuration * 2,
+        duration: drawDuration * 1.4, // Reduced from 2x to 0.8x
         ease: "power2.inOut",
       }, "-=0.5")
       .to(logoOverlayRef.current, {
         opacity: 0,
         duration: 0.25,
         ease: "power2.out",
-      }, "+=0.5"); 
+      }); // Removed the +0.5s wait 
   };
 
   const revealPage = () => {
