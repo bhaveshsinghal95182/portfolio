@@ -12,6 +12,7 @@ import "./globals.css";
 import Logo from "@/components/logo";
 import PageTransition from "@/components/page-transition";
 import { Analytics } from "@vercel/analytics/next";
+import Navbar from "@/components/nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,7 +65,12 @@ export default function RootLayout({
         className={`${geistMono.variable} ${playfairDisplay.variable} ${bricolageGrotesque.variable} ${jost.variable} ${poppins.variable} ${southera.className} ${geistSans.variable} antialiased`}
       >
         <PageTransition svg={<Logo />} animation="wipe" blocks={10}>
-          {children}
+          <section className="page flex justify-center px-4 ">
+            <div className="w-[400px] md:w-[600px]">
+              <Navbar />
+              {children}
+            </div>
+          </section>
         </PageTransition>
       </body>
       <Analytics />

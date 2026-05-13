@@ -21,15 +21,11 @@ export default function Links({ LINK_SIZE }: LinksProps) {
       label: "GitHub",
       link: "https://github.com/bhaveshsinghal95182",
     },
-    {
-      icon: <LinkedinLogo width={LINK_SIZE} height={LINK_SIZE} />,
-      label: "LinkedIn",
-      link: "https://www.linkedin.com/in/bhavesh-singhal-2400a4328/",
-    },
+
     {
       icon: <X width={LINK_SIZE} height={LINK_SIZE} />,
       label: "Twitter",
-      link: "https://x.com/bhavesh95182",
+      link: "https://x.com/descentkatil_",
     },
     {
       icon: <Mail width={LINK_SIZE} height={LINK_SIZE} />,

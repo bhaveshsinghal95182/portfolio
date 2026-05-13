@@ -34,7 +34,7 @@ const projects = [
     description: "A plugin to create a color palette using tweakcn colors",
     url: "https://www.figma.com/community/plugin/1533799530090421982/tweakcn-css-import",
     external: true,
-    milestone: "16 users",
+    milestone: "182 users",
     milestoneColor: "bg-purple-100 text-purple-600", // Muted purple
   },
 ];
@@ -80,19 +80,18 @@ export default function Projects({ LINK_SIZE }: ProjectsProps) {
           </div>
         ))}
       </div>
-      <div className="group mt-2 p-2 px-4 max-w-96 bg-accent/15 border border-black rounded-2xl text-xs font-jost flex gap-1">
-        <Bulb2Fill
-          size="16"
-          className="text-black transition-colors duration-200 group-hover:text-accent"
-        />
-        You can check out more of my work on{" "}
-        <Link
-          href="https://github.com/bhaveshsinghal95182"
-          className="font-bold transition-colors duration-200 group-hover:text-accent"
-        >
-          GitHub.
-        </Link>
-      </div>
+      <Link href="https://github.com/bhaveshsinghal95182">
+        <div className="group mt-2 p-2 px-4 max-w-76 bg-accent/15 border border-black rounded-2xl text-xs font-jost flex gap-1">
+          <Bulb2Fill
+            size="16"
+            className="text-black transition-colors duration-200 group-hover:text-accent"
+          />
+          You can check out more of my work on{" "}
+          <span className="font-bold transition-colors duration-200 group-hover:text-accent">
+            GitHub.
+          </span>
+        </div>
+      </Link>
     </div>
   );
 }
