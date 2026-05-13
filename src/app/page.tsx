@@ -7,20 +7,20 @@ const LINK_SIZE = 13;
 export default function Home() {
   return (
     <section className="page flex justify-center px-4 ">
-      <div className="max-w-[400px] md:max-w-[600px]">
+      <div className="max-w-100 md:max-w-150">
         <Navbar />
-        <h1 className="-tracking-[0.06em] text-primary font-playfair text-4xl">
+        <h1 className="tracking-[-0.06em] text-primary font-playfair text-4xl">
           Bhvavesh Singhal
         </h1>
         <div className="flex items-center gap-1">
           <div className="text-muted-black font-jost tracking-tighter text-[12px]">
             developer
           </div>
-          <div className="bg-muted-black h-[4px] w-[4px] rounded"></div>
+          <div className="bg-muted-black h-1 w-1 rounded"></div>
           <div className="text-muted-black font-jost tracking-tighter text-[12px]">
             designer
           </div>
-          <div className="bg-muted-black h-[4px] w-[4px] rounded"></div>
+          <div className="bg-muted-black h-1 w-1 rounded"></div>
           <div className="text-muted-black font-jost tracking-tighter text-[12px]">
             ai enthusiast
           </div>
