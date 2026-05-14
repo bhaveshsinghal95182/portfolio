@@ -15,6 +15,13 @@
   --color-primary: #e65959;
   --color-accent: #e65959;
   --color-bg: #e3e4d8;
+
+  /* chart colors  */
+  --color-chart-blue: #4f6d7a;
+  --color-chart-green: #5f7a61;
+  --color-chart-grid: #c9cabd;
+  --color-chart-axis: #7d7e73;
+  --color-chart-tooltip: #2f2f2f;
 }
 
 * {

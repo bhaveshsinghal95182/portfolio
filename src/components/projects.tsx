@@ -1,8 +1,17 @@
 import Link from "next/link";
 import ArrowTopRight2 from "@/components/arrow-up";
 import Bulb2Fill from "./bulb";
+import { Milestone } from "lucide-react";
 
 const projects = [
+  {
+    name: "Recso",
+    description: "A screen recorder and video editor for windows",
+    url: "https://recso.dev",
+    external: true,
+    milestone: "Custom Cursor",
+    milestoneColor: "bg-green-100 text-green-600",
+  },
   {
     name: "Kickstart Express",
     description: "A scaffolder cli tool to quickly generate an express app",
@@ -19,15 +28,6 @@ const projects = [
     external: true,
     milestone: "500+ weekly downloads",
     milestoneColor: "bg-blue-100 text-blue-600", // Muted blue
-  },
-  {
-    name: "Code Execution Backend",
-    description:
-      "Backend service for executing code snippets compatible in C, C++, Java etc",
-    url: "https://github.com/bhaveshsinghal95182/code-execution-backend",
-    external: true,
-    milestone: "Open Source",
-    milestoneColor: "bg-green-100 text-green-600", // Muted green
   },
   {
     name: "Figma Plugin",

@@ -1,6 +1,5 @@
 import { Mail, Notebook } from "lucide-react";
 import X from "@/components/logos/x-formerly-twitter";
-import LinkedinLogo from "@/components/logos/linkedin";
 import GithubLogo from "@/components/logos/github";
 import Link from "next/link";
 import ArrowTopRight2 from "@/components/arrow-up";

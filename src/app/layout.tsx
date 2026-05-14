@@ -64,16 +64,16 @@ export default function RootLayout({
       <body
         className={`${geistMono.variable} ${playfairDisplay.variable} ${bricolageGrotesque.variable} ${jost.variable} ${poppins.variable} ${southera.className} ${geistSans.variable} antialiased`}
       >
-        <PageTransition svg={<Logo />} animation="wipe" blocks={10}>
-          <section className="page flex justify-center px-4 ">
-            <div className="w-[400px] md:w-[600px]">
+        <PageTransition svg={<Logo />} animation="wipe" blocks={5}>
+          <section className="page flex min-h-screen justify-center px-4 ">
+            <div className="w-100 md:w-150 flex flex-col min-h-screen">
               <Navbar />
-              {children}
+              <main className="flex-1">{children}</main>
             </div>
           </section>
         </PageTransition>
+        <Analytics />
       </body>
-      <Analytics />
     </html>
   );
 }
