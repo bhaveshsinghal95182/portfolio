@@ -10,18 +10,6 @@ export default function Navbar() {
         >
           Home
         </Link>
-        {/* <Link
-          href="/ai"
-          className="uppercase font-mono font-medium text-[#141414] text-[0.9rem]"
-        >
-          AI
-        </Link> */}
-        {/* <Link */}
-        {/*   href="/achievements" */}
-        {/*   className="uppercase font-mono font-medium text-[#141414] text-[0.9rem]" */}
-        {/* > */}
-        {/*   Achievements */}
-        {/* </Link> */}
         <Link
           href="/projects"
           className="uppercase font-mono font-medium text-[#141414] text-[0.9rem]"
