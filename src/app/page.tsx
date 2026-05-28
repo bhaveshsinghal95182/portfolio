@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div>
       <h1 className="tracking-[-0.06em] text-primary font-playfair text-4xl">
-        Bhvavesh Singhal
+        Bhavesh Singhal
       </h1>
       <div className="flex items-center gap-1">
         <div className="text-muted-black font-jost tracking-tighter text-[12px]">
