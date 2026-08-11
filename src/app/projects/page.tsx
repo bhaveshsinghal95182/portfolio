@@ -1,144 +1,112 @@
-import DownloadsChart from "@/components/downloads-chart";
-import { type ChartConfig } from "@/components/ui/chart";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import DownloadsChart from "@/components/downloads-chart";
+import { type ChartConfig } from "@/components/ui/chart";
+import { getPortfolioData } from "@/lib/project-stats";
+import { formatCompact } from "@/lib/stats";
 
-export interface DownloadsData {
-  downloads: number;
-  day: string;
-}
+export const metadata: Metadata = {
+  title: "Projects",
+  description:
+    "npm packages, products and plugins — with live download numbers straight from the npm registry.",
+  alternates: { canonical: "/projects" },
+};
 
-function condenseToMonthly(data: DownloadsData[]) {
-  const monthlyMap = new Map<string, number>();
-
-  for (const entry of data) {
-    const date = new Date(entry.day);
-
-    const monthLabel = date.toLocaleDateString("en-US", {
-      month: "short",
-      year: "numeric",
-    });
-
-    monthlyMap.set(
-      monthLabel,
-      (monthlyMap.get(monthLabel) ?? 0) + entry.downloads,
-    );
-  }
-
-  return Array.from(monthlyMap.entries()).map(([month, downloads]) => ({
-    month,
-    downloads,
-  }));
-}
-async function getDownloadsHistory(
-  packageName: string,
-  startingDate: string,
-): Promise<DownloadsData[]> {
-  try {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-
-    const formattedDate = `${yyyy}-${mm}-${dd}`;
-    const response = await fetch(
-      `https://api.npmjs.org/downloads/range/${startingDate}:${formattedDate}/${packageName}`,
-    );
-
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-
-    const data = await response.json();
-    return data.downloads;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return [];
-  }
-}
-
-const kickstartConfig = {
-  downloads: {
-    label: "downloads",
-    color: "var(--color-chart-blue)",
-  },
-} satisfies ChartConfig;
-
-const logosConfig = {
-  downloads: {
-    label: "downloads",
-    color: "var(--color-chart-green)",
-  },
-} satisfies ChartConfig;
-
-const saasApps = [
-  { name: "Recso", link: "https://recso.dev", icon: "https://recso.dev/R.png" },
-  {
-    name: "Messy UI",
-    link: "https://messyui.dev",
-    icon: "https://messyui.dev/favicon_io/android-chrome-192x192.png",
-  },
-];
+const CHART_COLORS = [
+  "var(--color-chart-blue)",
+  "var(--color-chart-green)",
+] as const;
 
 export default async function Page() {
-  const kickstartRaw = await getDownloadsHistory(
-    "kickstart-express",
-    "2025-07-28",
+  const { packages, projects } = await getPortfolioData();
+  const products = projects.filter(
+    (project) => project.category === "product" && project.icon,
   );
-  const logosRaw = await getDownloadsHistory("company-logos", "2025-08-21");
-  const kickstartData = condenseToMonthly(kickstartRaw);
-  const logosData = condenseToMonthly(logosRaw);
-  const npmPackages = [
-    {
-      title: "Kickstart Express",
-      data: kickstartData,
-      config: kickstartConfig,
-      link: "https://www.npmjs.com/package/kickstart-express",
-    },
-    {
-      title: "Company logos",
-      data: logosData,
-      config: logosConfig,
-      link: "https://www.npmjs.com/package/company-logos",
-    },
-  ];
+
   return (
-    <div className="font-mono">
+    <div className="font-mono pb-12">
       <div className="flex flex-col w-full">
         <h1 className="text-2xl tracking-tight font-jost">Npm packages</h1>
-        <div className="flex w-full">
-          {npmPackages.map((item, index) => (
-            <div key={index} className="w-full">
-              <DownloadsChart chartData={item.data} chartConfig={item.config} />
-              <Link href={item.link}>
-                <h2 className="text-lg tracking-tight group relative inline-block cursor-pointer">
-                  {item.title}
-                  <span className="absolute left-0 bottom-0 h-px w-0 bg-current transition-all duration-300 ease-out group-hover:w-full"></span>
-                </h2>
-              </Link>
-            </div>
-          ))}
+        <div className="flex flex-col gap-8 md:flex-row md:gap-4 w-full mt-2">
+          {packages.map(({ project, monthly, weekly, total }, index) => {
+            const chartConfig = {
+              downloads: {
+                label: "downloads",
+                color: CHART_COLORS[index % CHART_COLORS.length],
+              },
+            } satisfies ChartConfig;
+
+            return (
+              <div key={project.slug} className="w-full">
+                <DownloadsChart chartData={monthly} chartConfig={chartConfig} />
+                <Link href={`/projects/${project.slug}`}>
+                  <h2 className="text-lg tracking-tight group relative inline-block cursor-pointer">
+                    {project.name}
+                    <span className="absolute left-0 bottom-0 h-px w-0 bg-current transition-all duration-300 ease-out group-hover:w-full"></span>
+                  </h2>
+                </Link>
+                <p className="text-xs text-muted-black mt-1">
+                  {weekly !== null ? `${formatCompact(weekly)}/week · ` : ""}
+                  {total > 0 ? `${formatCompact(total)} all time` : "npm"}
+                </p>
+                <Link
+                  href={`https://www.npmjs.com/package/${project.npmPackage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-muted-black hover:text-accent transition-colors"
+                >
+                  view on npm ↗
+                </Link>
+              </div>
+            );
+          })}
         </div>
-        <div className="w-[calc(100%-64px)] h-px bg-black inline-block my-8 mx-auto" />
-        <h1 className="text-2xl tracking-tight font-jost">SAAS</h1>
+
+        <div className="w-[calc(100%-64px)] h-px bg-muted-black/30 inline-block my-8 mx-auto" />
+
+        <h1 className="text-2xl tracking-tight font-jost">Products</h1>
         <div className="mt-4 flex gap-4">
-          {saasApps.map((item) => (
-            <Link key={item.name} href={item.link} target="_blank">
-              <div className="flex flex-col w-full">
-                <Image
-                  src={item.icon}
-                  alt={`${item.name} logo`}
-                  width={100}
-                  height={100}
-                  className="bg-black p-2 rounded-xl"
-                />
-                <h2 className="text-lg tracking-tight group relative inline-block cursor-pointer pt-2 text-center">
-                  {item.name}
+          {products.map((project) => (
+            <Link key={project.slug} href={`/projects/${project.slug}`}>
+              <div className="flex flex-col w-full group">
+                {project.icon ? (
+                  <Image
+                    src={project.icon}
+                    alt={`${project.name} logo`}
+                    width={100}
+                    height={100}
+                    className="bg-overlay p-2 rounded-xl transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : null}
+                <h2 className="text-lg tracking-tight cursor-pointer pt-2 text-center group-hover:text-accent transition-colors">
+                  {project.name}
                 </h2>
               </div>
             </Link>
           ))}
         </div>
+
+        <div className="w-[calc(100%-64px)] h-px bg-muted-black/30 inline-block my-8 mx-auto" />
+
+        <h1 className="text-2xl tracking-tight font-jost">Everything else</h1>
+        <ul className="mt-4 space-y-2">
+          {projects
+            .filter((project) => project.category === "plugin")
+            .map((project) => (
+              <li key={project.slug}>
+                <Link
+                  href={`/projects/${project.slug}`}
+                  className="group flex items-baseline justify-between gap-4 text-sm hover:text-accent transition-colors"
+                >
+                  <span>{project.name}</span>
+                  <span className="text-xs text-muted-black group-hover:text-accent">
+                    {project.milestone}
+                  </span>
+                </Link>
+              </li>
+            ))}
+        </ul>
       </div>
     </div>
   );

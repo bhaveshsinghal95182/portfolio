@@ -1,0 +1,43 @@
+This site used to be a single column of static text. Everything on it was true
+when I typed it and slowly stopped being true afterwards — "1k+ weekly
+downloads" was a string in a TSX file, not a number from anywhere.
+
+So I rewired it. The numbers now come from the places that actually know them.
+
+## The numbers fetch themselves
+
+Download counts come from the npm registry API, star counts from the GitHub
+API. Both are wrapped so that a failed request returns `null` rather than
+throwing, and every badge falls back to static copy when that happens. A rate
+limit should make the site slightly less impressive, not break it.
+
+Everything revalidates once a day:
+
+```ts
+const response = await fetch(url, { next: { revalidate: 86400 } });
+```
+
+npm caps a download range at eighteen months, so longer histories get stitched
+together from consecutive windows before being condensed into monthly buckets
+for the charts.
+
+## Case studies instead of a link list
+
+A list of project names tells you nothing. Each project now has its own page
+with the problem it solves, what is actually inside it, and the live numbers
+attached — and those pages generate their own social cards, so a link posted
+anywhere shows the project rather than a bare URL.
+
+## Details that took longer than they should have
+
+The theme resolves before first paint via a small inline script, so there is no
+white flash on a dark-mode machine. The signature at the bottom of the home
+page is the same single-path SVG the page transition draws, now drawn on again
+when it scrolls into view. Anyone with `prefers-reduced-motion` set gets none of
+that.
+
+There is a command palette on `⌘K` and a terminal on `~`. Neither is necessary.
+
+## What is next
+
+More writing here, probably about the Rust side of Recso.
