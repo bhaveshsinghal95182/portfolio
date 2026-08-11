@@ -3,6 +3,7 @@
 import gsap from "gsap";
 import React, { useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { isMotionReduced } from "@/lib/motion-preference";
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -30,6 +31,23 @@ interface PageTransitionProps {
     | "scale";
 }
 
+/** Visitors who ask for less motion — via the OS or the nav toggle — get plain,
+ *  instant navigation. Read per-click so flipping the toggle takes effect
+ *  immediately, without a reload. */
+const prefersReducedMotion = isMotionReduced;
+
+/**
+ * Background tabs get no requestAnimationFrame, so a GSAP timeline started
+ * there never advances and never fires onComplete. Since navigation hangs off
+ * that callback, animating in a hidden tab would strand the visitor on the
+ * page with every internal link dead. Skip the animation instead.
+ */
+const isDocumentHidden = () =>
+  typeof document !== "undefined" && document.visibilityState === "hidden";
+
+/** Belt and braces: if the timeline stalls for any reason, navigate anyway. */
+const NAVIGATION_WATCHDOG_MS = 2500;
+
 const PageTransition: React.FC<PageTransitionProps> = ({
   children,
   svg,
@@ -49,89 +67,24 @@ const PageTransition: React.FC<PageTransitionProps> = ({
   const blockRef = useRef<HTMLDivElement[]>([]);
   const isTransitioning = useRef(false);
 
-  useEffect(() => {
-    const createBlocks = () => {
-      if (!overlayRef.current) return;
-      overlayRef.current.innerHTML = "";
-      blockRef.current = [];
+  // Defined before the effect that calls them so lexical order is honoured.
+  function coverPage(url: string) {
+    let navigated = false;
+    let watchdog = 0;
 
-      for (let i = 0; i < blocks; i++) {
-        const block = document.createElement("div");
-        block.className = "block";
-        overlayRef.current.appendChild(block);
-        blockRef.current.push(block);
-      }
+    const navigate = () => {
+      if (navigated) return;
+      navigated = true;
+      window.clearTimeout(watchdog);
+      isTransitioning.current = false;
+      router.push(url);
     };
 
-    createBlocks();
+    // The animation is decoration; the navigation is the contract. Never let
+    // the first hold the second hostage.
+    watchdog = window.setTimeout(navigate, NAVIGATION_WATCHDOG_MS);
 
-    switch (animation) {
-      case "wipe":
-        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "left" });
-        break;
-      case "wipe-reverse":
-        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "right" });
-        break;
-      case "vertical":
-        gsap.set(blockRef.current, { scaleY: 0, transformOrigin: "top" });
-        break;
-      case "mosaic":
-        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "center" });
-        break;
-      case "scale":
-        gsap.set(blockRef.current, { scale: 0, transformOrigin: "center" });
-        break;
-      default:
-        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "left" });
-    }
-
-    if (logoRef.current) {
-      const path = logoRef.current.querySelector<SVGPathElement>(pathSelector) || logoRef.current.querySelector("path");
-      if (path) {
-        const pathLength = path.getTotalLength();
-        path.dataset.length = String(pathLength);
-        gsap.set(path, {
-          strokeDasharray: pathLength,
-          strokeDashoffset: pathLength,
-          fill: "transparent",
-          ...(strokeColor ? { stroke: strokeColor } : {}),
-        });
-      }
-    }
-
-    revealPage();
-
-    const handleRouteChange = (url: string) => {
-      if (!isTransitioning.current) {
-        isTransitioning.current = true;
-        coverPage(url);
-      }
-    };
-
-    const links = document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]');
-    const clickListener = (e: MouseEvent) => {
-      e.preventDefault();
-      const target = e.currentTarget as HTMLAnchorElement | null;
-      if (!target) return;
-      const url = target.getAttribute("href");
-      if (url && url !== pathName) {
-        handleRouteChange(url);
-      }
-    };
-    links.forEach((lnk) => lnk.addEventListener("click", clickListener));
-
-    return () => {
-      links.forEach((lnk) => lnk.removeEventListener("click", clickListener));
-    };
-  }, [router, pathName, animation, blocks, pathSelector, strokeColor, fillColor, drawDuration, fillDuration]);
-
-  const coverPage = (url: string) => {
-    const tl = gsap.timeline({
-      onComplete: () => {
-        isTransitioning.current = false;
-        router.push(url);
-      },
-    });
+    const tl = gsap.timeline({ onComplete: navigate });
 
   const pathEl = logoRef.current?.querySelector<SVGPathElement>(pathSelector) || logoRef.current?.querySelector("path");
     const pathLength = pathEl?.getTotalLength() || 0;
@@ -217,10 +170,16 @@ const PageTransition: React.FC<PageTransitionProps> = ({
         opacity: 0,
         duration: 0.25,
         ease: "power2.out",
-      }); // Removed the +0.5s wait 
-  };
+      }); // Removed the +0.5s wait
+  }
 
-  const revealPage = () => {
+  function revealPage() {
+    if (prefersReducedMotion() || isDocumentHidden()) {
+      gsap.set(blockRef.current, { scaleX: 0, scaleY: 0, opacity: 0 });
+      isTransitioning.current = false;
+      return;
+    }
+
     switch (animation) {
       case "wipe":
         gsap.set(blockRef.current, { scaleX: 1, transformOrigin: "right" });
@@ -296,7 +255,100 @@ const PageTransition: React.FC<PageTransitionProps> = ({
           onComplete: () => { isTransitioning.current = false; },
         });
     }
-  };
+  }
+
+  useEffect(() => {
+    // A new route means any previous transition is over; clear the guard so a
+    // stalled one can never leave the links permanently dead.
+    isTransitioning.current = false;
+
+    const createBlocks = () => {
+      if (!overlayRef.current) return;
+      overlayRef.current.innerHTML = "";
+      blockRef.current = [];
+
+      for (let i = 0; i < blocks; i++) {
+        const block = document.createElement("div");
+        block.className = "block";
+        overlayRef.current.appendChild(block);
+        blockRef.current.push(block);
+      }
+    };
+
+    createBlocks();
+
+    switch (animation) {
+      case "wipe":
+        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "left" });
+        break;
+      case "wipe-reverse":
+        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "right" });
+        break;
+      case "vertical":
+        gsap.set(blockRef.current, { scaleY: 0, transformOrigin: "top" });
+        break;
+      case "mosaic":
+        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "center" });
+        break;
+      case "scale":
+        gsap.set(blockRef.current, { scale: 0, transformOrigin: "center" });
+        break;
+      default:
+        gsap.set(blockRef.current, { scaleX: 0, transformOrigin: "left" });
+    }
+
+    if (logoRef.current) {
+      const path = logoRef.current.querySelector<SVGPathElement>(pathSelector) || logoRef.current.querySelector("path");
+      if (path) {
+        const pathLength = path.getTotalLength();
+        path.dataset.length = String(pathLength);
+        gsap.set(path, {
+          strokeDasharray: pathLength,
+          strokeDashoffset: pathLength,
+          fill: "transparent",
+          ...(strokeColor ? { stroke: strokeColor } : {}),
+        });
+      }
+    }
+
+    revealPage();
+
+    const handleRouteChange = (url: string) => {
+      if (!isTransitioning.current) {
+        isTransitioning.current = true;
+        coverPage(url);
+      }
+    };
+
+    const links = document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]');
+    const clickListener = (e: MouseEvent) => {
+      // Let the browser/router handle the click untouched under reduced motion
+      // or in a background tab, and never hijack modified clicks (new tab,
+      // download, etc).
+      if (
+        prefersReducedMotion() ||
+        isDocumentHidden() ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      e.preventDefault();
+      const target = e.currentTarget as HTMLAnchorElement | null;
+      if (!target) return;
+      const url = target.getAttribute("href");
+      if (url && url !== pathName) {
+        handleRouteChange(url);
+      }
+    };
+    links.forEach((lnk) => lnk.addEventListener("click", clickListener));
+
+    return () => {
+      links.forEach((lnk) => lnk.removeEventListener("click", clickListener));
+    };
+  }, [router, pathName, animation, blocks, pathSelector, strokeColor, fillColor, drawDuration, fillDuration]);
 
   return (
     <>

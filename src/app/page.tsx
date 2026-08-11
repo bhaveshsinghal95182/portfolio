@@ -1,30 +1,51 @@
 import Links from "@/components/links";
 import Projects from "@/components/projects";
+import Signature from "@/components/signature";
+import StatsStrip from "@/components/stats-strip";
+import { getPortfolioData } from "@/lib/project-stats";
+import { site } from "@/lib/site";
 
 const LINK_SIZE = 13;
 
-export default function Home() {
+export default async function Home() {
+  const { projects, stats } = await getPortfolioData();
+
+  // Anything the APIs could not answer for simply drops out of the strip.
+  const statItems = [
+    stats.totalDownloads && {
+      label: "npm downloads",
+      value: stats.totalDownloads,
+      compact: true,
+    },
+    stats.weeklyDownloads && {
+      label: "this week",
+      value: stats.weeklyDownloads,
+      compact: true,
+    },
+    stats.stars && { label: "github stars", value: stats.stars },
+    stats.publicRepos && { label: "public repos", value: stats.publicRepos },
+  ].flatMap((item) => (item ? [item] : []));
+
   return (
     <div>
       <h1 className="tracking-[-0.06em] text-primary font-playfair text-4xl">
-        Bhvavesh Singhal
+        {site.name}
       </h1>
       <div className="flex items-center gap-1">
-        <div className="text-muted-black font-jost tracking-tighter text-[12px]">
-          developer
-        </div>
-        <div className="bg-muted-black h-1 w-1 rounded"></div>
-        <div className="text-muted-black font-jost tracking-tighter text-[12px]">
-          designer
-        </div>
-        <div className="bg-muted-black h-1 w-1 rounded"></div>
-        <div className="text-muted-black font-jost tracking-tighter text-[12px]">
-          ai enthusiast
-        </div>
+        {site.roles.map((role, index) => (
+          <div key={role} className="flex items-center gap-1">
+            {index > 0 && (
+              <div className="bg-muted-black h-1 w-1 rounded"></div>
+            )}
+            <div className="text-muted-black font-jost tracking-tighter text-[12px]">
+              {role}
+            </div>
+          </div>
+        ))}
       </div>
       {/* Intro Text */}
       <div className="intro-text">
-        <p className="text-justify tracking-tight font-jost text-muted-black text-sm/snug">
+        <p className="text-justify tracking-tight font-jost text-body text-sm/snug">
           Hi there, I&apos;m Bhavesh, a 21 y/o CS Student at MMDU Haryana, who
           loves to <span className="font-semibold">code</span> and make my life
           a little easier with the help of{" "}
@@ -35,16 +56,20 @@ export default function Home() {
         </p>
       </div>
 
+      {/* Live numbers */}
+      <StatsStrip stats={statItems} />
+
       {/* Links */}
       <Links LINK_SIZE={LINK_SIZE} />
 
       {/* Projects */}
-      <Projects LINK_SIZE={LINK_SIZE} />
+      <Projects
+        LINK_SIZE={LINK_SIZE}
+        projects={projects.filter((project) => project.featured)}
+      />
 
       {/* Signature */}
-      <div className="w-full flex justify-center pt-8">
-        <p className="font-southera select-none text-2xl">Bhavesh Singhal</p>
-      </div>
+      <Signature />
     </div>
   );
 }

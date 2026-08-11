@@ -3,6 +3,7 @@ import X from "@/components/logos/x-formerly-twitter";
 import GithubLogo from "@/components/logos/github";
 import Link from "next/link";
 import ArrowTopRight2 from "@/components/arrow-up";
+import { site } from "@/lib/site";
 
 interface LinksProps {
   LINK_SIZE: number;
@@ -14,32 +15,37 @@ export default function Links({ LINK_SIZE }: LinksProps) {
       icon: <Notebook width={LINK_SIZE} height={LINK_SIZE} />,
       label: "Resume",
       link: "/resume",
+      external: false,
     },
     {
       icon: <GithubLogo width={LINK_SIZE} height={LINK_SIZE} />,
       label: "GitHub",
-      link: "https://github.com/bhaveshsinghal95182",
+      link: site.github,
+      external: true,
     },
-
     {
       icon: <X width={LINK_SIZE} height={LINK_SIZE} />,
       label: "Twitter",
-      link: "https://x.com/descentkatil_",
+      link: site.twitter,
+      external: true,
     },
     {
       icon: <Mail width={LINK_SIZE} height={LINK_SIZE} />,
       label: "Email",
-      link: "mailto:worknbhavesh@gmail.com",
+      link: `mailto:${site.email}`,
+      external: true,
     },
   ];
 
   return (
     <div className="flex flex-wrap gap-2 links">
-      {links.map(({ icon, label, link }) => (
+      {links.map(({ icon, label, link, external }) => (
         <div key={label} className="flex">
           <Link
             href={link}
-            target="_blank"
+            // Internal routes stay in the tab so the page transition can run.
+            target={external ? "_blank" : undefined}
+            rel={external ? "noopener noreferrer" : undefined}
             className="group flex items-center gap-1 whitespace-nowrap text-[12px] font-poppins text-muted-black hover:text-accent lowercase"
           >
             {icon}

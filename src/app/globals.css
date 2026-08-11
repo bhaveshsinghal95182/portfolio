@@ -1,42 +1,102 @@
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Serif+Text:ital@0;1&display=swap");
 @import "tailwindcss";
+
+/* Dark mode is driven by an explicit data-theme attribute on <html>.
+   The inline script in layout.tsx resolves "system" to light/dark before paint,
+   so this single variant covers both the manual toggle and the OS preference. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  color-scheme: light;
+
+  --background: #e3e4d8;
+  --foreground: #141414;
+  --muted-black: #353535;
+  --title: #141414;
+  --body: #353535;
+  --primary: #e65959;
+  --accent: #e65959;
+  --border: #141414;
+  --surface: #dcddd0;
+  --overlay: #222222;
+
+  /* chart colors  */
+  --chart-blue: #4f6d7a;
+  --chart-green: #5f7a61;
+  --chart-grid: #c9cabd;
+  --chart-axis: #7d7e73;
+  --chart-tooltip: #2f2f2f;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #131410;
+  --foreground: #e6e7db;
+  --muted-black: #a4a598;
+  --title: #edeee2;
+  --body: #a4a598;
+  --primary: #f07a7a;
+  --accent: #f07a7a;
+  --border: #34352d;
+  --surface: #1c1d17;
+  --overlay: #0c0d09;
+
+  --chart-blue: #82a6b5;
+  --chart-green: #90b492;
+  --chart-grid: #2b2c25;
+  --chart-axis: #7d7e73;
+  --chart-tooltip: #e6e7db;
+}
 
 @theme inline {
   --color-background: var(--background);
+  --color-bg: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-overlay: var(--overlay);
+  --color-muted-black: var(--muted-black);
+  --color-title: var(--title);
+  --color-body: var(--body);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-playfair: var(--font-playfair-display);
-  --font-bricolage: var(--font-bricolage-grotesque);
   --font-jost: var(--font-jost);
   --font-poppins: var(--font-poppins);
   --font-southera: var(--font-southera);
-  --color-muted-black: #353535;
-  --color-primary: #e65959;
-  --color-accent: #e65959;
-  --color-bg: #e3e4d8;
 
   /* chart colors  */
-  --color-chart-blue: #4f6d7a;
-  --color-chart-green: #5f7a61;
-  --color-chart-grid: #c9cabd;
-  --color-chart-axis: #7d7e73;
-  --color-chart-tooltip: #2f2f2f;
+  --color-chart-blue: var(--chart-blue);
+  --color-chart-green: var(--chart-green);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-axis: var(--chart-axis);
+  --color-chart-tooltip: var(--chart-tooltip);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  background-color: var(--background);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
 ::selection {
-  background-color: var(--color-accent);
-  color: white;
+  background-color: var(--accent);
+  color: var(--background);
 }
 
 /* Navbar */
 nav {
-  /* position: fixed;
-  width: 100vw; */
   height: 20px;
   padding: 2rem;
   display: flex;
@@ -47,25 +107,20 @@ nav {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 2rem;
 }
 
 a {
   text-decoration: none;
-  /* text-transform: uppercase;
-  color: #141414;
-  font-size: 0.9rem;
-  font-weight: 500;
-  font-family: var(--font-geist-mono); */
 }
 
 /* content */
 .page {
   position: relative;
   width: 100%;
-  /* padding-top: 64px; */
   min-height: 100svh;
-  background-color: #e3e4d8;
+  background-color: var(--background);
 }
 
 /* Transition related */
@@ -77,13 +132,13 @@ a {
   height: 100svh;
   display: flex;
   pointer-events: none;
-  z-index: 2;
+  z-index: 40;
 }
 
 .block {
   flex: 1;
   height: 100%;
-  background-color: #222;
+  background-color: var(--overlay);
   transform: scaleX(0);
   transform-origin: left;
 }
@@ -96,10 +151,10 @@ a {
   height: 100svh;
   display: flex;
   pointer-events: none;
-  z-index: 2;
+  z-index: 40;
   justify-content: center;
   align-items: center;
-  background-color: #222;
+  background-color: var(--overlay);
   opacity: 0;
 }
 
@@ -118,4 +173,72 @@ a {
 
 .links {
   margin-top: 16px;
+}
+
+/* Milestone badges — tinted to survive both themes */
+.badge {
+  --badge-tint: var(--muted-black);
+  background-color: color-mix(in srgb, var(--badge-tint) 14%, transparent);
+  color: var(--badge-tint);
+}
+
+.badge-red {
+  --badge-tint: #c8553d;
+}
+.badge-blue {
+  --badge-tint: #4f6d7a;
+}
+.badge-green {
+  --badge-tint: #4f7a53;
+}
+.badge-purple {
+  --badge-tint: #6f5c96;
+}
+
+[data-theme="dark"] .badge-red {
+  --badge-tint: #ec8f79;
+}
+[data-theme="dark"] .badge-blue {
+  --badge-tint: #8fb5c4;
+}
+[data-theme="dark"] .badge-green {
+  --badge-tint: #8fbe94;
+}
+[data-theme="dark"] .badge-purple {
+  --badge-tint: #ac97d6;
+}
+
+/* Anyone who asks for less motion gets none of the decorative kind.
+   Motion has two sources: the OS setting and the toggle in the nav. The inline
+   script in layout.tsx stamps the resolved value on <html data-motion> before
+   first paint, so the attribute is the source of truth — the media query below
+   only covers the no-JS case, and yields to an explicit "full". */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion="reduced"] .transition-overlay,
+html[data-motion="reduced"] .logo-overlay {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) *,
+  html:not([data-motion="full"]) *::before,
+  html:not([data-motion="full"]) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html:not([data-motion="full"]) .transition-overlay,
+  html:not([data-motion="full"]) .logo-overlay {
+    display: none !important;
+  }
 }
