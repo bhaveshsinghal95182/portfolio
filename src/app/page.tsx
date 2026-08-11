@@ -29,7 +29,7 @@ export default async function Home() {
   return (
     <div>
       <h1 className="tracking-[-0.06em] text-primary font-playfair text-4xl">
-        {site.name}
+        Bhavesh Singhal
       </h1>
       <div className="flex items-center gap-1">
         {site.roles.map((role, index) => (
