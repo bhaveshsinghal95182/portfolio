@@ -9,7 +9,7 @@ import { formatCompact } from "@/lib/stats";
 export const metadata: Metadata = {
   title: "Projects",
   description:
-    "npm packages, products and plugins — with live download numbers straight from the npm registry.",
+    "npm packages, desktop apps, browser tools and plugins, with live download numbers from the npm registry.",
   alternates: { canonical: "/projects" },
 };
 
@@ -38,7 +38,7 @@ export default async function Page() {
     <div className="font-mono pb-12">
       <h1 className="sr-only">Projects</h1>
       <div className="flex flex-col w-full">
-        <h2 className="text-2xl tracking-tight font-jost">Npm packages</h2>
+        <h2 className="text-2xl tracking-tight font-jost">npm packages</h2>
         <div className="flex flex-col gap-8 md:flex-row md:gap-4 w-full mt-2">
           {packages.map(({ project, monthly, weekly, total }, index) => {
             const chartConfig = {

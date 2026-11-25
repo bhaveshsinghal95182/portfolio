@@ -411,7 +411,7 @@ export default function Terminal() {
             {
               id: nextId.current++,
               kind: "output" as const,
-              text: `${site.name} — type "help" to get started, "exit" to leave.`,
+              text: `${site.name}: type "help" to get started, "exit" to leave.`,
             },
           ],
     );
@@ -664,7 +664,7 @@ export default function Terminal() {
 
         case "ls": {
           if (argument === "writing" || argument === "posts") {
-            print(posts.map((post) => `  ${post.slug}  —  ${post.title}`));
+            print(posts.map((post) => `  ${post.slug}  ${post.title}`));
             return;
           }
           if (argument === "links") {
@@ -678,7 +678,7 @@ export default function Terminal() {
           if (!argument || argument === "projects" || argument === ".") {
             print(
               projects.map(
-                (project) => `  ${project.slug}  —  ${project.tagline}`,
+                (project) => `  ${project.slug}  ${project.tagline}`,
               ),
             );
             return;
@@ -758,7 +758,7 @@ export default function Terminal() {
             "",
             `  ${site.headline}`,
             `  CS student at ${site.school}, based in ${site.location}.`,
-            `  Builds developer tools, npm packages and small SaaS.`,
+            `  Builds developer tools, desktop apps and small products.`,
           ]);
           return;
 

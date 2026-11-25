@@ -21,10 +21,10 @@ function resolveSiteUrl(): string {
 export const site = {
   name: "Bhavesh Singhal",
   firstName: "Bhavesh",
-  roles: ["developer", "designer", "ai enthusiast"],
+  roles: ["developer", "designer", "AI enthusiast"],
   headline: "Developer, designer, and AI enthusiast.",
   description:
-    "Bhavesh Singhal — CS student building developer tools, desktop apps and small products. Creator of Recso, Slatey and aisprite.",
+    "CS student building developer tools, desktop apps and small products. Creator of Recso, Slatey and aisprite.",
   url: resolveSiteUrl(),
   email: "worknbhavesh@gmail.com",
   location: "Haryana, India",

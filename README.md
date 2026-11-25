@@ -62,10 +62,10 @@ standard location.
 
 ## Environment
 
-- `NEXT_PUBLIC_SITE_URL` — the real domain. Drives canonical URLs, the sitemap,
+- `NEXT_PUBLIC_SITE_URL`: the real domain. Drives canonical URLs, the sitemap,
   RSS and OG images. Without it the site falls back to the Vercel URL, then
   localhost.
-- `GITHUB_TOKEN` — optional. Lifts the GitHub API rate limit from 60 to 5000
+- `GITHUB_TOKEN`: optional. Lifts the GitHub API rate limit from 60 to 5000
   requests an hour.
 
 ## Live numbers

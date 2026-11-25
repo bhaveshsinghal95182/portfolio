@@ -50,7 +50,7 @@ export default function Projects({ LINK_SIZE, projects }: ProjectsProps) {
             size="16"
             className="text-foreground transition-colors duration-200 group-hover:text-accent"
           />
-          You can check out more of my work on{" "}
+          More of my work is on{" "}
           <span className="font-bold transition-colors duration-200 group-hover:text-accent">
             GitHub.
           </span>

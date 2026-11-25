@@ -12,8 +12,8 @@ export default function Page() {
       <h1 className="tracking-[-0.06em] text-primary font-playfair text-7xl">
         404
       </h1>
-      <h2 className="text-2xl text-title">Hey! I think you strayed too far</h2>
-      <p className="text-body/85">You should probably go back home</p>
+      <h2 className="text-2xl text-title">Nothing here</h2>
+      <p className="text-body/85">The page you&apos;re looking for doesn&apos;t exist.</p>
       <Link
         href="/"
         className="mt-4 font-mono text-xs text-muted-black hover:text-accent transition-colors"

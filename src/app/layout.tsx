@@ -51,7 +51,7 @@ const southera = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — ${site.roles.join(", ")}`,
+    default: `${site.name}: ${site.roles.join(", ")}`,
     template: `%s · ${site.name}`,
   },
   description: site.description,
@@ -86,12 +86,12 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: site.url,
     siteName: site.name,
-    title: `${site.name} — ${site.roles.join(", ")}`,
+    title: `${site.name}: ${site.roles.join(", ")}`,
     description: site.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} — ${site.roles.join(", ")}`,
+    title: `${site.name}: ${site.roles.join(", ")}`,
     description: site.description,
     creator: site.twitterHandle,
   },

@@ -59,38 +59,39 @@ export const projects: Project[] = [
     icon: "https://recso.dev/R.png",
     caseStudy: {
       summary:
-        "Recso is a desktop screen recorder and editor. It records the screen or a window, the webcam, microphone, system audio and cursor, then edits zooms, cursor effects, backgrounds and cuts in one place. The capture and render engine is Rust; the interface is React inside Electron.",
+        "Recso is a desktop screen recorder and editor that I built to capture the screen or a window, the webcam, microphone, system audio and cursor, then edit zooms, cursor effects, backgrounds and cuts in one place. The capture and render engine is Rust, and the interface is React inside Electron, a split that keeps frame work away from the UI thread.",
       sections: [
         {
           heading: "Why build another recorder",
           body: [
-            "Free Windows recorders watermark the output, cap the recording length, or hand you a file you then have to edit somewhere else. Recso keeps recording and editing in one app, so a clip goes from capture to trimmed export without a second program.",
+            "I built Recso because free Windows recorders watermark the output, cap the recording length, or hand you a file that still needs editing somewhere else. I wanted both steps in one app, so a clip goes from capture to trimmed export without a second program.",
           ],
         },
         {
           heading: "The Rust core",
           body: [
-            "Screen capture, audio, the webcam and the cursor run through a Rust engine called velocity. On Windows it uses Windows Graphics Capture and WASAPI; the Linux port replaces those with xdg-desktop-portal, PipeWire and V4L2. Cursor position and shape are recorded as their own track, which is what lets the editor restyle, scale and smooth the pointer after the fact.",
-            "Recording and export encode with NVENC when an NVIDIA GPU is present, and with openh264 on Linux otherwise. A 1080p60 PipeWire test wrote 171 frames in 2.79 seconds.",
+            "I kept screen capture, audio, the webcam and the cursor in a Rust engine called velocity, which uses Windows Graphics Capture and WASAPI on Windows. When I ported it to Linux, I replaced those with xdg-desktop-portal, PipeWire and V4L2 but kept the same JavaScript API, so the rest of the app didn't need a second implementation. I stored cursor position and shape as their own track, which lets the editor restyle, scale and smooth the pointer after the fact.",
+            "Linux cursor capture gave me a bug to fix: Hyprland paints a software cursor into the frame on machines with more than one GPU, so a recording briefly showed two pointers. I turned hardware cursors off for the length of a recording and restored the setting at stop.",
+            "Recording and export encode with NVENC when an NVIDIA GPU is present and fall back to openh264 on Linux. A 1080p60 PipeWire test wrote 171 frames in 2.79 seconds.",
           ],
         },
         {
           heading: "One render chain for preview and export",
           body: [
-            "The effects run before preview and export split. One GPU render chain composites the background, zoom, cursor and webcam, then either imports the frame into Electron as a shared texture for preview or writes it straight to an encoder. A filter cannot look one way on screen and another in the file, because both read from the same implementation.",
-            "On Windows that chain is D3D11 with Media Foundation. On Linux it is wgpu, with the shaders ported to WGSL. Frames travel as DMA-BUFs and reach the editor without a trip through JavaScript.",
+            "I made the effects run before preview and export split. One GPU render chain composites the background, zoom, cursor and webcam. It either imports the frame into Electron as a shared texture for preview or writes it straight to an encoder, so a filter can't look one way on screen and another in the file.",
+            "On Windows I used D3D11 with Media Foundation. On Linux I used wgpu and ported the shaders to WGSL. Frames travel as DMA-BUFs and reach the editor without a trip through JavaScript.",
           ],
         },
         {
           heading: "Crash-safe by default",
           body: [
-            "Recording metadata is written to a local SQLite database as it goes, so a crash does not lose the take: the project can be recovered and opened in the editor. Finished projects keep their cuts, zooms and effects as data, which is also what lets the app re-export at a different preset later.",
+            "I write recording metadata into a local SQLite database as the recording runs, so a crash doesn't lose the take. I can recover the project and open it in the editor. Finished projects keep their cuts, zooms and effects as data, which also lets the app re-export at a different preset later.",
           ],
         },
         {
           heading: "Automation, off by default",
           body: [
-            "An optional local API exposes recording and export over a Unix socket, a CLI and an MCP server. It is off until it is switched on in Settings, a recording started over the API is visible in the UI, and nothing in it deletes files. Slatey uses it to point Recso at one folder per video.",
+            "I added an optional local API that exposes recording and export over a Unix socket, a CLI and an MCP server. It stays off until it is enabled in Settings, a recording started over the API shows up in the UI, and nothing in it deletes files. Slatey uses it to point Recso at one folder per video.",
           ],
         },
       ],
@@ -111,33 +112,33 @@ export const projects: Project[] = [
     updated: "2026-10-13",
     caseStudy: {
       summary:
-        "Slatey is a GTK 4 / libadwaita app for Linux that gives every video its own folder and opens OBS, Audacity, Recso and DaVinci Resolve already pointed at it. It also cuts the pauses out of a recording and polishes the voiceover with ffmpeg.",
+        "I built Slatey as a GTK 4 / libadwaita app for Linux that gives every video its own folder and opens OBS, Audacity, Recso and DaVinci Resolve already pointed at it. It also cuts the pauses out of a recording and polishes the voiceover with ffmpeg.",
       sections: [
         {
           heading: "One folder per video",
           body: [
-            "Video work spreads itself across applications. OBS writes to its own recording path, Audacity exports wherever it last exported, Resolve keeps a Media Storage list, and the files you actually need end up in four places. Starting the next video means finding all of them again.",
-            "Slatey makes one folder the unit of work. Everything for a video lives under `~/Videos/Projects/<Video>/`: `Media/` for anything that gets edited, with `Footage/`, `Voiceover/Raw/`, `Music/` and `Images/` inside it, plus separate `Recso/`, `Audacity/` and `Renders/` folders. Resolve imports one folder and the rest stays out of the way.",
+            "I got tired of video work spreading across applications. OBS writes to its own recording path, Audacity exports wherever it last exported, Resolve keeps a Media Storage list, and the files you need end up in four places. Starting the next video means finding all of them again.",
+            "I made one folder the unit of work. Everything for a video lives under `~/Videos/Projects/<Video>/`: `Media/` for anything that gets edited, with `Footage/`, `Voiceover/Raw/`, `Music/` and `Images/` inside it, plus separate `Recso/`, `Audacity/` and `Renders/` folders. Resolve imports one folder, and the rest stays out of the way.",
           ],
         },
         {
           heading: "Opening tools in the right place",
           body: [
-            "The useful part is not launching the app, it is launching it with its settings already moved. OBS gets its record directory switched either through its profile config or over obs-websocket when it is already running. Audacity gets its save and export directories rewritten. Recso is pointed at the project through its Automation API, a Unix socket it forgets on quit, so the paths are set again each time.",
-            "Resolve is the awkward one. The free Linux build cannot be scripted from outside, and its menu scripts run in a sandbox without file access. So Slatey prepares Resolve's Media Storage and recent-project settings while Resolve is closed, and then shows the import steps rather than pretending it can click them.",
+            "I made Slatey do more than launch the app. It launches it with each tool's settings already pointed at the project. OBS gets its record directory switched through its profile config or over obs-websocket when it is already running. Audacity gets its save and export directories rewritten, and Recso is pointed at the project through its Automation API, a Unix socket it forgets on quit, so the paths are set again each time.",
+            "Resolve was harder. The free Linux build can't be scripted from outside, and its menu scripts run in a sandbox without file access. I made Slatey prepare Resolve's Media Storage and recent-project settings while Resolve is closed, then show the import steps instead of pretending it can click them.",
           ],
         },
         {
           heading: "Cutting pauses without losing sync",
           body: [
-            "Cut pauses runs ffmpeg's `silencedetect`, snaps every cut point to a video frame boundary, and removes the frames and the matching audio in a single pass. That is why the audio stays in sync no matter how many cuts there are, which is the part a naive concatenate gets wrong.",
-            "Audio is written as FLAC, because the free Linux build of Resolve cannot read AAC. AV1 sources are re-encoded with NVENC when an NVIDIA GPU is present and SVT-AV1 otherwise; H.264 and HEVC go through NVENC or x264.",
+            "For Cut pauses, I used ffmpeg's `silencedetect`, snapped every cut point to a video frame boundary, and removed the frames and the matching audio in a single pass. The audio stays in sync no matter how many cuts there are, which a naive concatenate gets wrong.",
+            "I chose FLAC for the audio because the free Linux build of Resolve can't read AAC. AV1 sources re-encode with NVENC when an NVIDIA GPU is present and with SVT-AV1 otherwise. H.264 and HEVC go through NVENC or x264.",
           ],
         },
         {
           heading: "Voiceover polish",
           body: [
-            "Polish voiceover reads the raw takes from `Media/Voiceover/Raw/` and writes a de-essed, loudness-levelled mono 48 kHz, 24-bit WAV to `Media/Voiceover/`. The default target is −16 LUFS with a −1.5 dB true-peak ceiling, and Gentle/Strong settings cover consonants that lose clarity or takes that still hiss.",
+            "For Polish voiceover, I read the raw takes from `Media/Voiceover/Raw/` and write a de-essed, loudness-levelled mono 48 kHz, 24-bit WAV to `Media/Voiceover/`. The default target is −16 LUFS with a −1.5 dB true-peak ceiling, and Gentle/Strong settings cover consonants that lose clarity or takes that still hiss.",
           ],
         },
       ],
@@ -159,31 +160,31 @@ export const projects: Project[] = [
     icon: "/projects/aisprite.png",
     caseStudy: {
       summary:
-        "aisprite is a pixel art editor where the drawing tools and the AI agent speak the same language. Every edit is a list of ops, the agent gets those ops as its only tools, and it sees a rendered PNG after each draw so it can critique and fix its own work. The same editor is also served to Claude and other MCP clients.",
+        "I built aisprite as a pixel art editor with an AI agent that uses the same drawing operations as the tools. Every edit is a list of ops, the agent gets those ops as its only tools, and it sees a rendered PNG after each draw so it can critique and fix its own work. The same editor is also served to Claude and other MCP clients, so the agent can work from outside the browser.",
       sections: [
         {
           heading: "Ops are the drawing language",
           body: [
-            "Every action in the editor — pencil, fill, rectangle, layer, palette, frame — becomes a list of ops. The document model is pure TypeScript with no React or DOM, documents are immutable, and layers that do not change are shared between versions, which keeps undo history cheap.",
-            "The zod schema that validates a tool call is also the tool definition the model sees. Applied ops stream back to the browser as NDJSON, so a run appears as it is drawn and the whole AI run is a single undo step.",
+            "Every action in the editor becomes a list of ops: pencil, fill, rectangle, layer, palette and frame. I kept the document model in pure TypeScript with no React or DOM, made documents immutable, and shared layers that don't change between versions, which keeps undo history cheap.",
+            "I used the same zod schema to validate a tool call and to define the tool the model sees. Applied ops stream back to the browser as NDJSON, so a run appears as it is drawn and the whole AI run is a single undo step.",
           ],
         },
         {
           heading: "The model has to see what it drew",
           body: [
-            "A drawing tool is a blindfold for a text model unless it can look. `draw` returns a rendered PNG of the sprite; `view` returns one layer as an image plus a character grid for exact coordinates. The agent draws, looks, and fixes. The editor's own AI panel and an MCP client both use that loop.",
+            "A text model can't judge a sprite it can't see, so I made `draw` return a rendered PNG of the sprite and `view` return one layer as an image plus a character grid for exact coordinates. The agent draws, looks and fixes. The editor's own AI panel and an MCP client both use that loop.",
           ],
         },
         {
           heading: "Local and hosted MCP",
           body: [
-            "`pnpm mcp` runs the editor as a stdio MCP server with no model inside it: the calling agent is the artist. The hosted version serves the same tools over HTTP, stores sprites in Upstash Redis, and can be added to claude.ai as a connector. Local sprites are files with live two-way sync; if both sides change at once, the file wins.",
+            "I made `pnpm mcp` run the editor as a stdio MCP server with no model inside it. The calling agent does the drawing. I built a hosted version that serves the same tools over HTTP, stores sprites in Upstash Redis, and can be added to claude.ai as a connector. Local sprites are files with live two-way sync, and if both sides change at once the file's version is kept.",
           ],
         },
         {
-          heading: "The editor is not a demo",
+          heading: "An editor first",
           body: [
-            "Frames, layers, onion skin, mirror brushes, palette editing, pixel-perfect zoom, animation playback, and export to PNG, animated GIF, a sprite sheet or a ZIP of layers. The AI panel is an addition to an editor that works without a key.",
+            "I built the editor first: it handles frames, layers, onion skin, mirror brushes, palette editing, pixel-perfect zoom and animation playback, and exports to PNG, animated GIF, a sprite sheet or a ZIP of layers. The AI panel is an addition to an editor that works without a key.",
           ],
         },
       ],
@@ -192,7 +193,7 @@ export const projects: Project[] = [
   {
     slug: "kickstart-express",
     name: "Kickstart Express",
-    tagline: "A scaffolder CLI to quickly generate an Express app",
+    tagline: "A CLI that scaffolds Express apps, then adds a database or auth",
     repo: "https://github.com/bhaveshsinghal95182/kickstart-express",
     githubRepo: "kickstart-express",
     npmPackage: "kickstart-express",
@@ -205,18 +206,18 @@ export const projects: Project[] = [
     updated: "2025-12-12",
     caseStudy: {
       summary:
-        "A CLI that scaffolds a production-shaped Express.js project in one command — TypeScript or JavaScript, optional Docker, and a structured controllers/services/routes layout — then keeps extending it after the fact with an `add` command.",
+        "I wrote Kickstart Express as a CLI that scaffolds a production-shaped Express project in one command, with a choice of TypeScript or JavaScript, optional Docker, and a controllers/services/routes layout. It also has an `add` command that keeps extending the project after the first scaffold.",
       sections: [
         {
-          heading: "The problem",
+          heading: "The same setup every time",
           body: [
-            "Every new Express service starts with the same twenty minutes: init the package, wire TypeScript, add CORS and dotenv, decide on a folder layout, write a Dockerfile. It is not hard work, it is just repeated work, and it is easy to do slightly differently every time.",
+            "Every new Express service starts with the same twenty minutes: init the package, wire TypeScript, add CORS and dotenv, decide on a folder layout, write a Dockerfile. None of that is hard, but I repeated it every time, and it came out slightly different on each project.",
           ],
         },
         {
           heading: "One command, running server",
           body: [
-            "The CLI runs interactively by default and asks five questions — name, language, Docker, src folder, structured architecture. Pass the same answers as flags and it skips the prompts entirely, which is what makes it usable inside other scripts.",
+            "I made the CLI interactive by default, with five questions: name, language, Docker, src folder, structured architecture. Passing the same answers as flags skips the prompts, which is what makes the tool usable inside scripts and other generators.",
           ],
           code: {
             language: "bash",
@@ -227,8 +228,8 @@ export const projects: Project[] = [
         {
           heading: "v2: adding features to projects that already exist",
           body: [
-            "Scaffolders usually help once and then get in the way. v2 added an `add` command so the tool stays useful past minute one: `add database` wires up MongoDB or Postgres with Mongoose, Prisma or Drizzle, and `add auth` sets up JWT or Clerk. Each works interactively or with flags.",
-            "v2 also dropped the `create` subcommand — scaffolding is now the default behaviour — and added graceful Ctrl+C handling that cleans up half-written project directories instead of leaving them behind.",
+            "Most scaffolders are useful for the first command and then stop helping, so I added an `add` command so the tool stays useful past minute one: `add database` wires up MongoDB or Postgres with Mongoose, Prisma or Drizzle, and `add auth` sets up JWT or Clerk. Both work interactively or with flags.",
+            "I also dropped the `create` subcommand, making scaffolding the default behaviour, and added graceful Ctrl+C handling that removes half-written project directories instead of leaving them behind.",
           ],
           code: {
             language: "bash",
@@ -239,7 +240,7 @@ export const projects: Project[] = [
         {
           heading: "What generated projects come with",
           body: [
-            "Express with CORS and dotenv configured, hot reload via tsx or nodemon, build and start scripts, and — when asked for — a multi-stage Dockerfile plus docker-compose. The structured template ships a small calculator API as a worked example of the controller/service/route split.",
+            "I generate projects with Express, CORS and dotenv configured, hot reload through tsx or nodemon, build and start scripts, and a multi-stage Dockerfile plus docker-compose when asked for. I ship a small calculator API in the structured template as a worked example of the controller/service/route split.",
           ],
         },
       ],
@@ -249,7 +250,7 @@ export const projects: Project[] = [
     slug: "company-logos",
     name: "Company Logos",
     tagline:
-      "An npm package inspired by shadcn to create logos in all frontend frameworks",
+      "An npm package that copies company logo components into your project",
     url: "https://logos-www.vercel.app/",
     repo: "https://github.com/bhaveshsinghal95182/logos",
     githubRepo: "logos",
@@ -263,12 +264,12 @@ export const projects: Project[] = [
     updated: "2025-12-12",
     caseStudy: {
       summary:
-        "A CLI that copies company logo components straight into a React project — shadcn's model applied to brand SVGs, so the logos become your code instead of another dependency.",
+        "I built Company Logos as a CLI that writes company logo components straight into a React project. It applies shadcn's copy-in model to brand SVGs, so the logos become source you can restyle instead of another dependency to ship.",
       sections: [
         {
           heading: "Copy, don't install",
           body: [
-            "Icon packages make you ship the whole set to use three glyphs, and you cannot edit what you pulled in. Following shadcn's approach, `company-logos` writes the component file into your project. From then on it is ordinary source you can restyle, resize or delete.",
+            "Icon packages make you ship the whole set to use three glyphs, and you can't edit what you pulled in. Following shadcn's approach, I made `company-logos` write the component file into your project. From then on it is ordinary source you can restyle, resize or delete.",
           ],
           code: {
             language: "bash",
@@ -277,15 +278,15 @@ export const projects: Project[] = [
           },
         },
         {
-          heading: "TypeScript or JavaScript, your call",
+          heading: "TypeScript or JavaScript",
           body: [
-            "`--tsx` and `--jsx` decide what gets written, so the same command works in a typed Next.js app and a plain Vite one. `--force` overwrites, `--all` takes everything.",
+            "I used `--tsx` and `--jsx` to decide what gets written, so the same command works in a typed Next.js app and a plain Vite one. I added `--force` to overwrite existing files and `--all` to take everything.",
           ],
         },
         {
           heading: "Keeping track of what was added",
           body: [
-            "Added components are recorded in a `logos.json` manifest at the project root, so `company-logos list` can tell you what is already installed and `available` can show what is not. Components are fetched from GitHub at add time, which keeps the published package small.",
+            "I record added components in a `logos.json` manifest at the project root, so `company-logos list` can tell you what is already installed and `available` can show what isn't. I fetch components from GitHub at add time, which keeps the published package small.",
           ],
         },
       ],
@@ -307,19 +308,18 @@ export const projects: Project[] = [
     icon: "https://messyui.dev/favicon_io/android-chrome-192x192.png",
     caseStudy: {
       summary:
-        "A growing collection of animated React components, distributed through the shadcn CLI. It started as a place to keep the creative-programming pieces that would otherwise be lost in one-off projects.",
+        "I built Messy UI as a growing collection of animated React components, distributed through the shadcn CLI. It started as a place to keep the creative-programming pieces that would otherwise be lost in one-off projects, and the registry is the part that made them reusable.",
       sections: [
         {
-          heading: "The hard part was the preview, not the components",
+          heading: "The preview was the hard part",
           body: [
-            "The library sat unbuilt for about half a year because of one unsolved problem: a single preview surface that could host two very different kinds of component. Inline ones are atomic and self-contained. Sandboxed ones only make sense inside a full page-like environment, dependent on their surroundings and position.",
-            "Solving that split is what finally made the registry possible.",
+            "I left the library unbuilt for about half a year because of one unsolved problem: a single preview surface that could host two very different kinds of component. Inline components are atomic and self-contained, while sandboxed ones only make sense inside a full page environment where their position and surroundings matter. Solving that split is what finally let me build the registry.",
           ],
         },
         {
           heading: "Installable with one command",
           body: [
-            "Every component is published as a shadcn registry entry, so adding one is the same command you already use for shadcn/ui — no new tooling to learn, and the code lands in your project rather than in node_modules.",
+            "I publish every component as a shadcn registry entry, so adding one uses the same command as shadcn/ui. There is no new tooling to learn, and the code goes into your project rather than into node_modules.",
           ],
           code: {
             language: "bash",
@@ -328,9 +328,9 @@ export const projects: Project[] = [
           },
         },
         {
-          heading: "On the AI in it",
+          heading: "The AI-generated parts",
           body: [
-            "The repo says it plainly: parts of this library are AI-generated, and it is being actively reclaimed by hand. Without that starting push the project would not exist at all — half a year of not shipping is its own kind of answer.",
+            "I say it plainly in the README: parts of this library are AI-generated, and I am rewriting them by hand. Without that starting push I would not have built the project at all, and half a year of not shipping is its own kind of answer.",
           ],
         },
       ],
@@ -351,19 +351,18 @@ export const projects: Project[] = [
     updated: "2025-08-21",
     caseStudy: {
       summary:
-        "A Figma community plugin that takes the CSS variables a tweakcn theme produces and turns them into a usable colour palette inside Figma.",
+        "I wrote the tweakcn CSS Import plugin for Figma to take the CSS variables a tweakcn theme produces and turn them into a usable colour palette inside Figma.",
       sections: [
         {
           heading: "Closing the loop between code and design",
           body: [
-            "tweakcn is a visual theme editor for shadcn/ui — it hands you a block of CSS custom properties. Getting those same colours into Figma meant copying hex values one at a time, which is exactly the kind of transcription that goes wrong quietly.",
-            "The plugin parses the CSS and generates the palette in Figma, so the design file and the codebase start from identical values.",
+            "tweakcn is a visual theme editor for shadcn/ui. It hands you a block of CSS custom properties, and I kept copying hex values into Figma one at a time, which is the kind of transcription that goes wrong without anyone noticing. I wrote the plugin to parse the CSS and generate the palette in Figma, so the design file and the codebase start from identical values.",
           ],
         },
         {
           heading: "Built on the Figma plugin API",
           body: [
-            "Written in TypeScript against @figma/plugin-typings and published to the Figma Community, where it is currently used by 182 people.",
+            "I wrote it in TypeScript against @figma/plugin-typings and published it to the Figma Community, where 182 people use it.",
           ],
         },
       ],
@@ -384,26 +383,24 @@ export const projects: Project[] = [
     updated: "2025-12-27",
     caseStudy: {
       summary:
-        "Vim Interactive Tutor recreates the vimtutor experience in the browser: 24 lessons across seven levels, each with a task, a visible target and automatic completion detection, running against an emulated Vim rather than a text box with instructions beside it.",
+        "I built Vim Interactive Tutor to recreate the vimtutor experience in the browser with 24 lessons across seven levels. Each lesson has a task, a visible target and automatic completion detection, and it runs against an emulated Vim rather than a text box with instructions beside it.",
       sections: [
         {
           heading: "Learning Vim by doing it",
           body: [
-            "Reading about `ciw` does not teach `ciw`. Every lesson gives you a buffer with a specific starting state and a task — delete this word, change what is inside the quotes, move three words and replace one — and checks the resulting text and cursor position rather than counting keystrokes.",
-            "Lessons unlock progressively, and progress is saved in local storage, so a session can be stopped and resumed without an account or a backend.",
+            "I knew reading about `ciw` doesn't teach `ciw`, so every lesson gives you a buffer with a specific starting state and a task: delete this word, change what is inside the quotes, move three words and replace one. I made it check the resulting text and cursor position rather than counting keystrokes, and I saved progress in local storage so you can stop and resume without an account or a backend.",
           ],
         },
         {
-          heading: "Emulating Vim, not approximating it",
+          heading: "Emulating Vim",
           body: [
-            "The editor implements Normal, Insert, Visual, Visual-Line, Command and Replace modes, with counts, motions and operators that compose the way Vim's do: `3w`, `d2j`, `ci(`, and command chains after `:`. The virtual shell answers `:w`, `:!ls`, `:!pwd`, `:!date`, `:set` and `:help` so the lesson about saving and quitting does not dead-end.",
-            "That composition is the part that usually gets skipped. A tutorial that only supports the exact keys in each lesson falls apart the moment someone tries something one character different.",
+            "I implemented Normal, Insert, Visual, Visual-Line, Command and Replace modes, with counts, motions and operators that compose the way Vim's do: `3w`, `d2j`, `ci(` and command chains after `:`. I made the virtual shell answer `:w`, `:!ls`, `:!pwd`, `:!date`, `:set` and `:help`, so the lesson about saving and quitting doesn't dead-end. That composition is the part most tutorials skip. I didn't want a tutorial that only supported the exact keys in each lesson, because it falls apart the moment someone tries something one character different.",
           ],
         },
         {
           heading: "No backend",
           body: [
-            "The whole thing is a Vite build — React 19, TypeScript, Tailwind and shadcn/ui components — deployed as static files. There is no server to keep alive and nothing to sign up for before the first lesson.",
+            "I built the whole thing as a Vite app with React 19, TypeScript, Tailwind and shadcn/ui components, and deployed it as static files. There is no server to keep alive and nothing to sign up for before the first lesson.",
           ],
         },
       ],
@@ -425,34 +422,34 @@ export const projects: Project[] = [
     updated: "2026-11-16",
     caseStudy: {
       summary:
-        "One laptop, seven services, no subscriptions: Seerr takes the request, Radarr and Sonarr find a release, Prowlarr hands them indexers, qBittorrent downloads it and Jellyfin plays it. A gate called subgate sits in the download path, and a FastAPI page called library covers the jobs the Arr interfaces do not.",
+        "I run a self-hosted film and TV setup on one laptop. Seerr takes the request, Radarr and Sonarr find a release, Prowlarr hands them indexers, qBittorrent downloads it and Jellyfin plays it. I added two smaller services for the gaps: subgate rejects releases without English subtitles or audio, and library is a FastAPI page for the jobs the Arr interfaces don't handle.",
       sections: [
         {
-          heading: "The pipeline",
+          heading: "From request to playback",
           body: [
-            "Requests go into Seerr, which talks to Radarr for films and Sonarr for shows. Both search through Prowlarr and hand the chosen release to qBittorrent; finished downloads are imported back into the library and served by Jellyfin. Bazarr fills in subtitles, Recyclarr keeps quality profiles current, and FlareSolverr gets Prowlarr past Cloudflare.",
-            "The Arrs and qBittorrent bind to `127.0.0.1`; only Jellyfin, Seerr and the library page are reachable from the LAN. Everything runs in Docker on the same machine, which is the whole point — the alternative was four subscriptions.",
+            "Requests go into Seerr, which talks to Radarr for films and Sonarr for shows. Both search through Prowlarr and hand the chosen release to qBittorrent, and finished downloads are imported back into the library and served by Jellyfin. Bazarr fills in subtitles, Recyclarr keeps quality profiles current, and FlareSolverr gets Prowlarr past Cloudflare.",
+            "I bind the Arrs and qBittorrent to `127.0.0.1`, while Jellyfin, Seerr and the library page are reachable from the LAN. I run everything in Docker on the same machine. The alternative was four subscriptions.",
           ],
         },
         {
           heading: "subgate: reject before the download runs",
           body: [
-            "A release with no English subtitles and no English audio is worthless here, and finding that out after a 20 GB download wastes an evening. subgate watches the Radarr and Sonarr queues and checks the torrent before it commits.",
-            "If the file list contains an English subtitle file, it passes immediately. Otherwise subgate downloads only the largest non-sample video, sequentially, with first and last piece priority, until the first 4 MiB are on disk, then asks `ffprobe` what tracks exist. English subtitle or audio passes; a Hindi audio track passes for films; neither means the queue entry is removed with `blocklist=true`, and the Arr searches the next release on its own.",
-            "Timeouts are measured in active download time, so a torrent queued overnight is not rejected for being slow. A release that never becomes readable is rejected as an unreadable header after 16 MiB.",
+            "A release with no English subtitles and no English audio is worthless here, and finding that out after a 20 GB download wastes an evening. I wrote subgate to watch the Radarr and Sonarr queues and check the torrent before it commits.",
+            "If the file list contains an English subtitle file, it passes immediately. Otherwise subgate downloads only the largest non-sample video, sequentially, with first and last piece priority, until the first 4 MiB are on disk, then asks `ffprobe` what tracks exist. An English subtitle or audio track passes, and a Hindi audio track passes for films. If neither is there, the queue entry is removed with `blocklist=true`, and the Arr searches the next release on its own.",
+            "I made subgate measure timeouts in active download time, so a torrent queued overnight isn't rejected for being slow. It rejects a release that never becomes readable as an unreadable header after 16 MiB.",
           ],
         },
         {
-          heading: "library: the page the Arr interfaces do not have",
+          heading: "library: the page the Arr interfaces don't have",
           body: [
-            "The Arr UIs are built for managing indexers and quality profiles, not for browsing what is actually on disk. The library page is FastAPI, Jinja and htmx in one container: a season-by-season view of the files, search and add, a watchlist, following for airing anime, an import tab with a rescue path for failed imports, and cleanup for leftover torrents and orphaned files.",
-            "It also has playlists that survive a re-import and a per-show TV toggle that hides a title from the TV's Jellyfin user without touching anyone else's library. It is password-protected and lives on the LAN, which is the right amount of auth for something one household uses.",
+            "The Arr UIs are built for managing indexers and quality profiles, not for browsing what is on disk, so I wrote the library page in FastAPI, Jinja and htmx in one container. It shows the files season by season, handles search and add, keeps a watchlist, follows airing anime, and has an import tab with a rescue path for failed imports plus cleanup for leftover torrents and orphaned files.",
+            "I also added playlists that survive a re-import and a per-show TV toggle that hides a title from the TV's Jellyfin user without touching anyone else's library. It is password-protected and lives on the LAN, which is enough auth for one household.",
           ],
         },
         {
           heading: "The TV end",
           body: [
-            "The library also runs as a Fire TV app: one WebView that finds the server by scanning the LAN, takes its basic-auth credentials from the install script, and injects the gruvbox palette at 1.5× so the rows read from the sofa.",
+            "I also run the library as a Fire TV app. One WebView finds the server by scanning the LAN and takes its basic-auth credentials from the install script, then I inject the gruvbox palette at 1.5× so the rows read from the sofa.",
           ],
         },
       ],
@@ -470,26 +467,26 @@ export const projects: Project[] = [
     updated: "2026-11-16",
     caseStudy: {
       summary:
-        "DukanBook replaces a paper cash book for a halwai business. One sheet per business day records the closing drawer count, two cash-in-hand piles and the day's expenses. Sales are never typed in; they are what the cash movement proves.",
+        "I built DukanBook to replace a paper cash book for a halwai business. One sheet per business day records the closing drawer count, two cash-in-hand piles and the day's expenses, and sales are never typed in: they are what the cash movement proves.",
       sections: [
         {
           heading: "Sales come out of the cash",
           body: [
-            "CIH3 is the total cash in hand and is always the sum of the two piles: `CIH3 = CIH1 + CIH2`. A day's sales are `CIH3 − the previous CIH3 + expenses`. A first day has no previous day, so it is measured against the starting cash in Settings and the float already in the shop is not counted as that day's sales.",
+            "I made CIH3 the total cash in hand, always the sum of the two piles: `CIH3 = CIH1 + CIH2`. A day's sales are `CIH3 − the previous CIH3 + expenses`. A first day has no previous day, so I measure it against the starting cash in Settings, which keeps the float already in the shop from being counted as that day's sales.",
             "The closing drawer is the counted figure. The notes and coins left in it are the float that carries into the next day, so there is no opening drawer to enter.",
           ],
         },
         {
           heading: "Money as integers",
           body: [
-            "Postgres stores money as `numeric(14,2)`; TypeScript works in integer paise. The accounting functions are pure, take no React or database handle, and have their own unit tests. Saving a day runs in one transaction and writes an audit row. Expenses are voided rather than deleted, so the original amount stays visible.",
+            "I store money as `numeric(14,2)`, while TypeScript works in integer paise. The accounting functions are pure, with no React or database handle, and have their own unit tests. I save a day in one transaction and write an audit row, and I void expenses rather than deleting them so the original amount stays visible.",
           ],
         },
         {
           heading: "Small on purpose",
           body: [
-            "One shop, one PIN, one book. There is no ORM: versioned SQL migrations and a small runner. Neon's pooled URL is used by the app and the direct URL by migrations, because PgBouncer's transaction mode breaks session-level work.",
-            "Reports are one month at a time, with a CSV export, a settings lock and an audit trail. The negative-sales case has its own notes in the accounting module instead of being clamped to zero.",
+            "The app serves one shop, with one PIN and one book. I didn't use an ORM: I wrote versioned SQL migrations and a small runner. I use Neon's pooled URL for the app and the direct URL for migrations, because PgBouncer's transaction mode breaks session-level work.",
+            "I made the reports cover one month at a time, with a CSV export, a settings lock and an audit trail. The negative-sales case has its own notes in the accounting module instead of being clamped to zero.",
           ],
         },
       ],
@@ -511,25 +508,24 @@ export const projects: Project[] = [
     icon: "/projects/dealforge.png",
     caseStudy: {
       summary:
-        "DealForge is built to pull deals from Amazon and Flipkart, wrap Ajio links in an affiliate tracker, and post them to a Telegram channel and a live site. The affiliate APIs are gated, so the first version works from a manual queue and switches the automatic pullers on when the accounts are approved.",
+        "I built DealForge to pull deals from Amazon and Flipkart, wrap Ajio links in an affiliate tracker, and post them to a Telegram channel and a live site. The affiliate APIs are gated, so the first version works from a manual queue, and I switch the automatic pullers on when the accounts are approved.",
       sections: [
         {
           heading: "The gates are part of the design",
           body: [
-            "Amazon's Creators API needs 10 qualifying sales in the past 30 days before it hands over product data, and Flipkart needs an approved affiliate account. Ajio's network gives a click tracker rather than a product feed, so a link can be wrapped but the price still comes from the post.",
-            "That makes the manual queue a real path, not a placeholder: paste a deal, the link gets tagged, and the same filters, dedupe and price history run. When access opens, `enabled = true` turns the pullers on.",
+            "Amazon's Creators API needs 10 qualifying sales in the past 30 days before it hands over product data, and Flipkart needs an approved affiliate account. Ajio's network gives a click tracker rather than a product feed, so a link can be wrapped but the price still comes from the post. I made the manual queue usable from day one: paste a deal, the link gets tagged, and the same filters, dedupe and price history run. When access opens, I flip `enabled = true` and the pullers turn on.",
           ],
         },
         {
           heading: "A 48-hour window",
           body: [
-            "The laptop pushes the last 48 hours of deals to `POST /api/deals`, and the site replaces the whole window in one transaction. Every row carries `expires_at`, so if the laptop stops pushing the site empties itself instead of serving stale prices. An empty push is rejected unless the body explicitly allows it.",
+            "I push the last 48 hours of deals from the laptop to `POST /api/deals`, and the site replaces the whole window in one transaction. Every row carries `expires_at`, so if the laptop stops pushing, the site stops serving deals instead of showing stale prices. An empty push is rejected unless the body explicitly allows it.",
           ],
         },
         {
           heading: "Two clients, one feed",
           body: [
-            "Telegram came first, including multi-product digests from private channels. The site is Next.js and Postgres on Neon: it revalidates every minute, and a push revalidates the deal routes immediately. Images go through `next/image` with a week-long CDN cache.",
+            "I built Telegram first, including multi-product digests from private channels. I built the site with Next.js and Postgres on Neon: it revalidates every minute, and a push revalidates the deal routes immediately. Images go through `next/image` with a week-long CDN cache.",
           ],
         },
       ],
@@ -552,31 +548,30 @@ export const projects: Project[] = [
     icon: "/projects/headcount.png",
     caseStudy: {
       summary:
-        "Headcount is a casual Android game: steer a crowd through multiply and divide gates, grow it into an army, and fight a wave every thirty seconds. All of the art and audio are generated in code, and the rules live in a pure Kotlin module so they can be tested without a phone.",
+        "I built Headcount as a casual Android game where you steer a crowd through multiply and divide gates, grow it into an army, and fight a wave every thirty seconds. I generate all of the art and audio in code, and I kept the rules in a pure Kotlin module so they can be tested without a phone.",
       sections: [
         {
           heading: "The crowd is the weapon",
           body: [
-            "Every gate multiplies or divides the crowd. Power is crowd × strength, and a fight costs people equal to the enemy power divided by your strength. The first boss, at wave 5, is 1.7× the wave's power.",
-            "Those numbers are not guesses. A headless bot plays 200 seeded runs per profile, and the medians — wave 5 on a fresh save, wave 10 after a week of upgrades, wave 25 maxed — are what set the curve.",
+            "I made every gate multiply or divide the crowd. Power is crowd × strength, and a fight costs people equal to the enemy power divided by your strength. The first boss, at wave 5, is 1.7× the wave's power.",
+            "I tuned the numbers with a headless bot that plays 200 seeded runs per profile. Its medians are wave 5 on a fresh save, wave 10 after a week of upgrades, and wave 25 with everything maxed, and I used those medians to set the curve.",
           ],
         },
         {
           heading: "Rules without Android",
           body: [
-            "The core module is plain Kotlin: gates, perks, leaders, economy, missions and the save codec. It runs on the JVM, so the balance simulation and unit tests do not need an emulator. A run is planned one segment at a time from a seed and the crowd at that moment, which is also what makes the daily track reproducible.",
+            "I kept the core module in plain Kotlin: gates, perks, leaders, economy, missions and the save codec. It runs on the JVM, so the balance simulation and unit tests don't need an emulator. I plan a run one segment at a time from a seed and the crowd at that moment, which is also what makes the daily track reproducible.",
           ],
         },
         {
           heading: "Art and audio from code",
           body: [
-            "Sprites are drawn into atlases at two sizes and the crowd, gates and scenery render in Compose and Filament. Music is deterministic mono PCM at 22,050 Hz and 128 BPM, with 16 synthesised effects. No downloaded images or audio means no licence to chase for the store build.",
-          ],
+            "I draw sprites into atlases at two sizes, and the crowd, gates and scenery render in Compose and Filament. The music is deterministic mono PCM at 22,050 Hz and 128 BPM, with 16 synthesised effects. I didn't download any images or audio, which means no licence to chase for the store build.",          ],
         },
         {
           heading: "Built for the store",
           body: [
-            "The release is a signed AAB with Play Billing for a one-time No Ads Pack, AdMob rewarded ads, a privacy policy on the studio site, and a store listing with screenshots and a feature graphic. It is in closed testing on Google Play.",
+            "I ship a signed AAB with Play Billing for a one-time No Ads Pack, AdMob rewarded ads, a privacy policy on the studio site, and a store listing with screenshots and a feature graphic. It is in closed testing on Google Play.",
           ],
         },
       ],
@@ -596,31 +591,31 @@ export const projects: Project[] = [
     updated: "2026-09-04",
     caseStudy: {
       summary:
-        "razorrecon matches Razorpay settlements to bank credits. It walks the whole chain, from order to payment to settlement to the credit in the bank, and names every fee, GST deduction, refund and chargeback on the way. A match rate only means something next to the number of wrong matches, so it reports both.",
+        "I wrote razorrecon to match Razorpay settlements to bank credits. It walks the whole chain from order to payment to settlement to the credit in the bank, naming every fee, GST deduction, refund and chargeback along the way. I report the match rate next to the number of wrong matches, because one without the other means nothing.",
       sections: [
         {
           heading: "Two halves of the chain",
           body: [
-            "Most reconciliation tools match settlements to bank credits and stop there. That says money arrived; it does not say the amount was right. The first half checks payments against settlements after fees, GST, refunds, chargebacks and adjustments. The second half checks the settlement against the bank credit, where references are cut short, value dates move, and a credit can arrive split, duplicated or reversed.",
+            "Most reconciliation tools match settlements to bank credits and stop there, which says money arrived but not that the amount was right. I check the first half, which covers payments against settlements after fees, GST, refunds, chargebacks and adjustments. I check the second half, which covers the settlement against the bank credit, where references are cut short, value dates move, and a credit can arrive split, duplicated or reversed.",
           ],
         },
         {
           heading: "The answers are sealed by the compiler",
           body: [
-            "The simulator holds the ground truth in `recon-sim`; the matching engine only depends on `recon-core`, so it cannot even name the type that holds the answers. That is why zero wrong matches is something you can check: the engine has no route to the truth.",
+            "I put the ground truth in `recon-sim`, while the matching engine only depends on `recon-core`, so it can't even name the type that holds the answers. The engine has no way to read the answers, which is why zero wrong matches is something you can check.",
           ],
         },
         {
           heading: "An explanation has to add up",
           body: [
-            "`Resolution` has private fields and one constructor. `Resolution::close` returns an error when the parts do not add up to the difference in exact paise, so a shaky explanation cannot be saved. Every amount is whole paise. GST on a fee lands on fractions, and floating point would turn those crumbs into gaps that were never there.",
+            "I gave `Resolution` private fields and one constructor. `Resolution::close` returns an error when the parts don't add up to the difference in exact paise, so a shaky explanation can't be saved. I store every amount as whole paise. GST on a fee produces fractions of a paise, and floating point would turn those crumbs into gaps that were never there.",
           ],
         },
         {
           heading: "Three answers, one sorted list",
           body: [
-            "MATCHED means traced end to end. AWAITING means the settlement is inside its SLA and the credit is not due yet. EXCEPTION means it is still open, with the possible causes listed. Exceptions are sorted by money at risk.",
-            "Over 90 days, the spreadsheet lookup matched 62.0% and got 8 wrong. razorrecon matched 88.7% with 0 wrong, and left 31 exceptions instead of 126. The ceiling on that data is 98.4%, because 27 of the 274 units cannot be closed by anyone.",
+            "I return three verdicts: MATCHED when a settlement is traced end to end, AWAITING when it is inside its SLA and the credit isn't due yet, and EXCEPTION when it is still open with the possible causes listed. I sort exceptions by money at risk.",
+            "Over 90 days, the spreadsheet lookup matched 62.0% and got 8 wrong. razorrecon matched 88.7% with 0 wrong and left 31 exceptions instead of 126. The ceiling on that data is 98.4%, because 27 of the 274 units can't be closed by anyone.",
           ],
         },
       ],
@@ -640,30 +635,30 @@ export const projects: Project[] = [
     updated: "2026-09-05",
     caseStudy: {
       summary:
-        "recoup decides what to do after a Razorpay payment fails. It treats the failure code as a distribution over causes, scores nine recovery actions by expected value, and only spends a model on the 16% of failures a lookup cannot explain.",
+        "I wrote recoup to decide what to do after a Razorpay payment fails. It treats the failure code as a distribution over causes, scores nine recovery actions by expected value, and only spends a model on the 16% of failures a lookup can't explain.",
       sections: [
         {
-          heading: "The code is not the cause",
+          heading: "The code hides the cause",
           body: [
-            "`card_declined` from `issuer_bank` can come from seven different causes, and each one wants a different recovery. Retrying three times is the usual answer. The tuple Razorpay actually reports — method, reason, code, source, step — resolves 76% of card failures to one cause with no inference. 81.8% of all decisions come from that lookup.",
+            "`card_declined` from `issuer_bank` can come from seven different causes, and each one wants a different recovery. Retrying three times is the usual answer. I built a lookup from the tuple Razorpay reports, method, reason, code, source and step, that resolves 76% of card failures to one cause with no inference. 81.8% of all decisions come from that lookup.",
           ],
         },
         {
-          heading: "A distribution, not a label",
+          heading: "A distribution over causes",
           body: [
-            "For the rest, diagnosis returns probabilities. Every action is scored as expected value: the probability of each cause, the chance that action succeeds for that cause at that time, the amount, the chance the customer is still there after the wait, minus the cost. Carrying the whole distribution means the agent often does not need to know the cause; asking for a new card is a decent move under several of them.",
+            "For the rest, I made diagnosis return probabilities. I score every action as expected value: the probability of each cause, the chance that action succeeds for that cause at that time, the amount, the chance the customer is still there after the wait, minus the cost. Carrying the whole distribution means the agent often doesn't need to know the cause, and asking for a new card is a decent move under several of them.",
           ],
         },
         {
           heading: "Nothing is keyed to a constant",
           body: [
-            "\"Retry in three days\" appears nowhere. Timing comes from when that customer's own charges landed, and about 18% have no pattern at all. An outage detector found 4 of 4 outages, with a mean time of 39 minutes and no false alarms over 14 days.",
+            "\"Retry in three days\" appears nowhere. I didn't key timing to a constant. The agent learns it from when that customer's own charges went through, and about 18% have no pattern at all. I added an outage detector that found 4 of 4 outages with a mean time of 39 minutes and no false alarms over 14 days.",
           ],
         },
         {
-          heading: "The result",
+          heading: "What it recovered",
           body: [
-            "On the committed 14-day world: 788,378 attempts, 44,863 failures, Rs 15,00,21,139 at risk. The retry-3x baseline recovered 27.9%; recoup recovered 41.4%, net of contact costs and discounts. The physical ceiling is 46.7% and an oracle with perfect diagnosis reaches 43.4%, so the headroom left in diagnosis is 2.0 points.",
+            "On the committed 14-day world, the run had 788,378 attempts, 44,863 failures and Rs 15,00,21,139 at risk. The retry-3x baseline recovered 27.9%, while I measured 41.4% net recovery for recoup after contact costs and discounts. The physical ceiling is 46.7%, an oracle with perfect diagnosis reaches 43.4%, and the headroom left in diagnosis is 2.0 points.",
           ],
         },
       ],
@@ -683,30 +678,30 @@ export const projects: Project[] = [
     updated: "2026-03-20",
     caseStudy: {
       summary:
-        "Sutra is a desktop note app. Pick a vault folder, edit Markdown in CodeMirror with Vim bindings, and see the links between notes as a force graph. Tauri supplies the window and the filesystem; there is no server and no account.",
+        "I built Sutra as a desktop note app. Pick a vault folder, edit Markdown in CodeMirror with Vim bindings, and see the links between notes as a force graph. I used Tauri for the window and the filesystem, and there is no server or account.",
       sections: [
         {
           heading: "The vault is the database",
           body: [
-            "The app opens on a vault picker. Everything after that is files: `tauri-plugin-fs` reads, writes and watches the folder, and a Zustand store keeps the open folder, file and tabs. Nothing leaves the machine.",
+            "I made the app open on a vault picker. Everything after that is files: I use `tauri-plugin-fs` to read, write and watch the folder, and a Zustand store keeps the open folder, file and tabs. Nothing leaves the machine.",
           ],
         },
         {
-          heading: "An editor, not a text area",
+          heading: "A real editor",
           body: [
-            "CodeMirror 6 handles Markdown, with KaTeX for maths, a Vim mode for people who want it, and language data for code blocks. The editor is the reason the app exists; the shell around it stays out of the way.",
+            "I used CodeMirror 6 for Markdown, with KaTeX for maths, a Vim mode for people who want it, and language data for code blocks. The editor is the center of the app, and the shell around it stays out of the way.",
           ],
         },
         {
-          heading: "The graph",
+          heading: "The link graph",
           body: [
-            "Notes become nodes and their links become edges in a D3 force graph. It opens as a tab beside the editor, so the shape of the vault is one click away from the file you are writing.",
+            "I turn notes into nodes and their links into edges in a D3 force graph. It opens as a tab beside the editor, so the shape of the vault is one click away from the file you are writing.",
           ],
         },
         {
           heading: "Why Tauri",
           body: [
-            "Tauri uses the system webview instead of shipping Chromium, and the Rust side owns the filesystem and graph commands. The front end is React 19 and Vite. The app is at 0.1.0 and still growing.",
+            "I chose Tauri because it uses the system webview instead of shipping Chromium, and I kept the filesystem and graph commands in Rust. The front end is React 19 and Vite. The app is at 0.1.0 and still growing.",
           ],
         },
       ],
@@ -726,24 +721,24 @@ export const projects: Project[] = [
     updated: "2025-08-16",
     caseStudy: {
       summary:
-        "VideoShare sends a video to a client without handing over the file. Uploads land in Google Cloud Storage, playback streams through the app, and a share link carries an expiry, a view limit and a watermark.",
+        "I built VideoShare to send a video to a client without handing over the file. Uploads land in Google Cloud Storage, playback streams through the app, and a share link carries an expiry, a view limit and a watermark.",
       sections: [
         {
           heading: "The object URL never leaves the server",
           body: [
-            "Videos are stored in Google Cloud Storage, but the client never gets a signed object URL. Playback goes through a Next.js route that streams the object, so access is checked on every request.",
+            "I store videos in Google Cloud Storage, but I never give the client a signed object URL. Playback goes through a Next.js route I wrote that streams the object, so access is checked on every request.",
           ],
         },
         {
           heading: "Watermarks and view limits",
           body: [
-            "Each share can carry a text watermark with its own position and opacity, a time limit and a maximum number of views. Downloads are blocked in several layers, including the keyboard shortcuts people reach for first.",
+            "I let each share carry a text watermark with its own position and opacity, a time limit and a maximum number of views. I block downloads in several layers, including the keyboard shortcuts people reach for first.",
           ],
         },
         {
-          heading: "The model",
+          heading: "Accounts, metadata and storage",
           body: [
-            "Clerk handles accounts. Postgres with Drizzle stores users, video metadata and `video_access` rows, and storage usage is tracked per user. The app is Next.js 15, TypeScript, Tailwind and Radix.",
+            "I used Clerk for accounts and Postgres with Drizzle for users, video metadata and `video_access` rows. I track storage usage per user. The app is Next.js 15, TypeScript, Tailwind and Radix.",
           ],
         },
       ],
@@ -763,24 +758,24 @@ export const projects: Project[] = [
     updated: "2025-08-03",
     caseStudy: {
       summary:
-        "A web editor that runs code in four languages on a Linux host. Every run gets its own user and its own limits, and the Express backend sits behind Nginx with TLS.",
+        "I built the Code Execution Platform as a web editor that runs code in four languages on a Linux host. Every run gets its own user and its own limits, and I put the Express backend behind Nginx with TLS.",
       sections: [
         {
           heading: "A user per run",
           body: [
-            "Each request creates a unique `exec_${uuid}` Linux user. Nothing is shared between executions, and the user is removed afterwards. The isolation is the operating system's, not a JavaScript sandbox.",
+            "I create a unique `exec_${uuid}` Linux user for each request. Nothing is shared between executions, and I remove the user afterwards. The isolation comes from the operating system rather than a JavaScript sandbox.",
           ],
         },
         {
-          heading: "Limits that kill the process group",
+          heading: "CPU, memory and process limits",
           body: [
-            "Runs get 10 seconds of CPU, 40 processes and a memory ceiling through ulimit. The runner starts each execution in its own process group, sends SIGTERM at the limit, and cleans up orphans so a runaway program cannot leave anything behind.",
+            "I give runs 10 seconds of CPU, 40 processes and a memory ceiling through ulimit. I start each execution in its own process group, send SIGTERM at the limit, and clean up orphans so a runaway program can't leave anything behind.",
           ],
         },
         {
           heading: "Fifty at a time",
           body: [
-            "A semaphore caps concurrency, and a single Linux VPS handled 50+ concurrent runs. The backend is Express and TypeScript, the editor is Monaco, Docker Compose runs the stack, and Nginx terminates TLS in front of it.",
+            "I added a semaphore to cap concurrency, and a single Linux VPS handled 50+ concurrent runs. I used Express and TypeScript for the backend, Monaco for the editor, Docker Compose for the stack, and Nginx to terminate TLS.",
           ],
         },
       ],
@@ -800,24 +795,24 @@ export const projects: Project[] = [
     updated: "2025-05-05",
     caseStudy: {
       summary:
-        "Auto-CIDE puts Monaco in a browser tab, syncs edits between people over Socket.IO, and runs a frontend, a backend and MongoDB from one Docker Compose file. Code runs in a WebContainer, not on the server.",
+        "I built Auto-CIDE to put Monaco in a browser tab, sync edits between people over Socket.IO, and run a frontend, a backend and MongoDB from one Docker Compose file. Code runs in a WebContainer inside the browser, so the backend never executes user code.",
       sections: [
         {
           heading: "Two people, one buffer",
           body: [
-            "Edits travel over Socket.IO, so every connected client sees the same buffer. Monaco supplies the editor, syntax highlighting and IntelliSense.",
+            "I send edits over Socket.IO, so every connected client sees the same buffer. Monaco supplies the editor, syntax highlighting and IntelliSense.",
           ],
         },
         {
           heading: "Run it without a server",
           body: [
-            "WebContainer executes the project in the browser. The backend does not spawn a sandbox for user code, which keeps the deployment to the app, the API and the database.",
+            "I used WebContainer to execute the project in the browser. The backend doesn't spawn a sandbox for user code, which keeps the deployment to the app, the API and the database.",
           ],
         },
         {
           heading: "Sessions and one command",
           body: [
-            "JWT handles sessions and Redis is optional for caching. `docker compose up` starts the frontend, backend and MongoDB together, and the AI endpoint behind the editor answers suggestions and questions.",
+            "I used JWT for sessions and left Redis optional for caching. `docker compose up` starts the frontend, backend and MongoDB together, and I added an AI endpoint behind the editor for suggestions and questions.",
           ],
         },
       ],

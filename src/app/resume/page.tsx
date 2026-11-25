@@ -8,7 +8,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Resume",
-  description: `Resume of ${site.name} — experience, projects, certifications and skills.`,
+  description: `Resume of ${site.name}: experience, projects, certifications and skills.`,
   alternates: { canonical: "/resume" },
 };
 

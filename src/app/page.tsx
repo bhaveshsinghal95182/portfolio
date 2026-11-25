@@ -46,13 +46,11 @@ export default async function Home() {
       {/* Intro Text */}
       <div className="intro-text">
         <p className="text-justify tracking-tight font-jost text-body text-sm/snug">
-          Hi there, I&apos;m Bhavesh, a CS student at MMDU Haryana, who loves
-          to <span className="font-semibold">code</span> and make my life a
-          little easier with the help of{" "}
-          <span className="font-semibold">technology</span>. In my spare time, I
-          enjoy working on personal{" "}
-          <span className="font-semibold">projects</span> and{" "}
-          <span className="font-semibold">exploring</span> new technologies.
+          Hi, I&apos;m Bhavesh, a CS student at MMDU Haryana. I build{" "}
+          <span className="font-semibold">developer tools</span> and{" "}
+          <span className="font-semibold">desktop apps</span>, usually to make my
+          own work a little easier, and I write about the parts that took longer
+          than expected.
         </p>
       </div>
 

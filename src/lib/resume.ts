@@ -44,9 +44,9 @@ export const experience: Experience[] = [
     location: "Remote",
     duration: "Jun 2024 – Present",
     highlights: [
-      "Delivered two production waitlist landing pages (Speechy, PureHydro), bringing in 500+ email signups in their first month.",
-      "Added Upstash Redis rate limiting that held up through 1000+ concurrent requests.",
-      "Brought Core Web Vitals to 98+ Lighthouse with lazy loading, code splitting and next-gen image compression.",
+      "Built two waitlist landing pages for Speechy and PureHydro, which brought in 500+ email signups in their first month.",
+      "Added Upstash Redis rate limiting that kept both pages up through 1000+ concurrent requests.",
+      "Reached 98+ Lighthouse on Core Web Vitals with lazy loading, code splitting and next-gen image formats.",
     ],
   },
   {
@@ -55,9 +55,9 @@ export const experience: Experience[] = [
     location: "Onsite",
     duration: "May 2025 – July 2025",
     highlights: [
-      "Engineered production-grade React + TypeScript UI, shipping 3 reusable components adopted across the core product within a 6-week sprint.",
-      "Integrated frontend screens with backend REST APIs, adding resilient loading and error states to improve UX quality.",
-      "Optimized production stability by resolving critical issues in a legacy PHP codebase, reducing the defect backlog by 15%.",
+      "Built the React and TypeScript interface for the core product, including three reusable components that were adopted across it within a six-week sprint.",
+      "Connected the screens to the backend REST APIs and added loading and error states.",
+      "Fixed critical bugs in a legacy PHP codebase, cutting the defect backlog by 15%.",
     ],
   },
 ];
