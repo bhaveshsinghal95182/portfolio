@@ -2,10 +2,16 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
+  "bin": {
+    "portfolio": "./scripts/project.mjs"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "project": "node scripts/project.mjs",
+    "projects": "node scripts/project.mjs --list",
+    "resume:pdf": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/resume-pdf.mjs",
     "lint": "eslint ."
   },
   "dependencies": {

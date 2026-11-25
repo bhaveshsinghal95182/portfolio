@@ -5,6 +5,7 @@ import ArrowTopRight2 from "@/components/arrow-up";
 import { getProject, projects } from "@/lib/projects";
 import { getPortfolioData } from "@/lib/project-stats";
 import { formatCompact } from "@/lib/stats";
+import { site } from "@/lib/site";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -67,7 +68,9 @@ export default async function ProjectPage({ params }: PageProps) {
   const stats = withStats.find((item) => item.slug === slug);
 
   const externalLinks = [
-    { label: "Live", href: project.url },
+    project.url
+      ? { label: project.urlLabel ?? "Live", href: project.url }
+      : null,
     project.repo ? { label: "Source", href: project.repo } : null,
     project.npmPackage
       ? {
@@ -77,8 +80,27 @@ export default async function ProjectPage({ params }: PageProps) {
       : null,
   ].flatMap((link) => (link ? [link] : []));
 
+  const description = project.caseStudy?.summary ?? project.tagline;
+  const projectSchema = {
+    "@context": "https://schema.org",
+    "@type": project.schemaType ?? "SoftwareApplication",
+    name: project.name,
+    description,
+    url: project.url ?? project.repo ?? `${site.url}/projects/${project.slug}`,
+    author: { "@type": "Person", name: site.name, url: site.url },
+    ...(project.repo ? { codeRepository: project.repo } : {}),
+    keywords: project.stack.join(", "),
+    ...(project.npmPackage
+      ? { applicationCategory: "DeveloperApplication" }
+      : {}),
+  };
+
   return (
     <article className="pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectSchema) }}
+      />
       <Link
         href="/projects"
         className="font-mono text-xs text-muted-black hover:text-accent transition-colors"
@@ -108,25 +130,27 @@ export default async function ProjectPage({ params }: PageProps) {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-4 mt-4">
-          {externalLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-1 text-[12px] font-poppins text-muted-black hover:text-accent lowercase"
-            >
-              <span>{link.label}</span>
-              <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
-                <ArrowTopRight2 size="13" />
-              </span>
-            </Link>
-          ))}
-        </div>
+        {externalLinks.length > 0 ? (
+          <div className="flex flex-wrap gap-4 mt-4">
+            {externalLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-1 text-[12px] font-poppins text-muted-black hover:text-accent lowercase"
+              >
+                <span>{link.label}</span>
+                <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
+                  <ArrowTopRight2 size="13" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </header>
 
-      {(stats?.weeklyDownloads || stats?.stars) && (
+      {Boolean(stats?.weeklyDownloads || stats?.stars) && (
         <dl className="mt-6 flex gap-8 border-y border-muted-black/20 py-3">
           {stats?.weeklyDownloads ? (
             <div>

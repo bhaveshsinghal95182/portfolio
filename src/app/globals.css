@@ -13,8 +13,11 @@
   --muted-black: #353535;
   --title: #141414;
   --body: #353535;
-  --primary: #e65959;
-  --accent: #e65959;
+  /* Darkened from #e65959: 2.75:1 on the paper background failed WCAG AA for
+     headings and links. #b03333 keeps the hue at 4.86:1. The brighter coral
+     survives in the badges below, where it is decoration rather than body text. */
+  --primary: #b03333;
+  --accent: #b03333;
   --border: #141414;
   --surface: #dcddd0;
   --overlay: #222222;
@@ -23,7 +26,7 @@
   --chart-blue: #4f6d7a;
   --chart-green: #5f7a61;
   --chart-grid: #c9cabd;
-  --chart-axis: #7d7e73;
+  --chart-axis: #5f6058;
   --chart-tooltip: #2f2f2f;
 }
 
@@ -183,16 +186,16 @@ a {
 }
 
 .badge-red {
-  --badge-tint: #c8553d;
+  --badge-tint: #963526;
 }
 .badge-blue {
-  --badge-tint: #4f6d7a;
+  --badge-tint: #3a5864;
 }
 .badge-green {
-  --badge-tint: #4f7a53;
+  --badge-tint: #3a5e40;
 }
 .badge-purple {
-  --badge-tint: #6f5c96;
+  --badge-tint: #5f4d83;
 }
 
 [data-theme="dark"] .badge-red {

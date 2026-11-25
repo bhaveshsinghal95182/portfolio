@@ -24,7 +24,7 @@ export const site = {
   roles: ["developer", "designer", "ai enthusiast"],
   headline: "Developer, designer, and AI enthusiast.",
   description:
-    "Bhavesh Singhal — CS student building developer tools, npm packages and small SaaS. Creator of Kickstart Express, company-logos and Recso.",
+    "Bhavesh Singhal — CS student building developer tools, desktop apps and small products. Creator of Recso, Slatey and aisprite.",
   url: resolveSiteUrl(),
   email: "worknbhavesh@gmail.com",
   location: "Haryana, India",

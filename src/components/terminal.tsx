@@ -108,6 +108,7 @@ const HELP = [
   "  ls [dir]          list projects, writing, or links",
   "  cat <slug>        read a project or post summary",
   "  open <slug|url>   navigate to a page or open a link",
+  "  <project>         open a project page (e.g. recso)",
   "  whoami            short bio",
   "  email             copy the email address",
   "  resume            open the resume",
@@ -693,13 +694,18 @@ export default function Terminal() {
           }
           const project = projects.find((item) => item.slug === argument);
           if (project) {
+            const primaryLink = project.url
+              ? `  ${(project.urlLabel ?? "Live").toLowerCase()}:   ${project.url}`
+              : project.repo
+                ? `  source: ${project.repo}`
+                : null;
             print([
               project.name,
               "",
               project.caseStudy?.summary ?? project.tagline,
               "",
               `  stack:  ${project.stack.join(", ")}`,
-              `  live:   ${project.url}`,
+              ...(primaryLink ? [primaryLink] : []),
               `  more:   open ${project.slug}`,
             ]);
             return;
@@ -831,13 +837,25 @@ export default function Terminal() {
           setOpen(false);
           return;
 
-        default:
+        default: {
+          const typed = input.toLowerCase();
+          const project = projects.find(
+            (item) =>
+              item.slug === command.toLowerCase() ||
+              item.name.toLowerCase() === typed,
+          );
+          if (project) {
+            print(`opening /projects/${project.slug}…`);
+            setOpen(false);
+            router.push(`/projects/${project.slug}`);
+            return;
+          }
           print(`command not found: ${command}. try "help".`, "error");
+        }
       }
     },
     [dock, moveTo, print, router, setTheme, motionResolved],
   );
-
   const floating = dock === "float";
 
   /* The panel stays mounted and hides itself instead of unmounting: the motion

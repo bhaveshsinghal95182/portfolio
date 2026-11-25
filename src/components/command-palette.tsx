@@ -32,6 +32,7 @@ export default function CommandPalette() {
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -226,14 +227,19 @@ export default function CommandPalette() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // Lock scrolling and focus the input while open.
+  // Lock scrolling, move focus in, and hand it back to the trigger on close.
   useEffect(() => {
     if (!open) return;
+    restoreFocusRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     inputRef.current?.focus();
     return () => {
       document.body.style.overflow = previousOverflow;
+      restoreFocusRef.current?.focus();
     };
   }, [open]);
 
@@ -247,6 +253,25 @@ export default function CommandPalette() {
   }, [activeIndex, open]);
 
   const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Tab") {
+      // Keep tabbing inside the dialog; the page behind it is inert.
+      const focusable = Array.from(
+        event.currentTarget.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), input:not([disabled])",
+        ),
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+      return;
+    }
     if (event.key === "Escape") {
       event.preventDefault();
       close();
@@ -274,7 +299,11 @@ export default function CommandPalette() {
 
   if (!open) {
     return copied ? (
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-md border border-muted-black/20 bg-surface px-3 py-1.5 font-mono text-xs text-body shadow-sm">
+      <div
+        role="status"
+        aria-live="polite"
+        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-md border border-muted-black/20 bg-surface px-3 py-1.5 font-mono text-xs text-body shadow-sm"
+      >
         email copied
       </div>
     ) : null;
@@ -309,7 +338,7 @@ export default function CommandPalette() {
           }}
           placeholder="Search projects, posts, actions…"
           aria-label="Search commands"
-          className="w-full bg-transparent px-4 py-3 font-jost text-sm text-foreground outline-none placeholder:text-muted-black/70 border-b border-muted-black/20"
+          className="w-full bg-transparent px-4 py-3 font-jost text-sm text-foreground outline-none placeholder:text-muted-black/80 border-b border-muted-black/20"
         />
 
         <div ref={listRef} className="max-h-[52vh] overflow-y-auto py-1">
@@ -325,7 +354,7 @@ export default function CommandPalette() {
               return (
                 <div key={command.id}>
                   {showGroup && (
-                    <div className="px-4 pt-3 pb-1 font-mono text-[10px] uppercase tracking-wider text-muted-black/70">
+                    <div className="px-4 pt-3 pb-1 font-mono text-[10px] uppercase tracking-wider text-muted-black/80">
                       {command.group}
                     </div>
                   )}

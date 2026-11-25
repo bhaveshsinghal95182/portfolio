@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatPostDate, getPost, posts } from "@/lib/posts";
+import { absoluteUrl, site } from "@/lib/site";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -45,8 +46,27 @@ export default async function PostPage({ params }: PageProps) {
 
   const { default: Content } = await post.load();
 
+  const postUrl = absoluteUrl(`/writing/${post.slug}`);
+  const postSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    dateModified: post.date,
+    author: { "@type": "Person", name: site.name, url: site.url },
+    mainEntityOfPage: postUrl,
+    url: postUrl,
+    image: absoluteUrl(`/writing/${post.slug}/opengraph-image`),
+    keywords: post.tags.join(", "),
+  };
+
   return (
     <article className="pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(postSchema) }}
+      />
       <Link
         href="/writing"
         className="font-mono text-xs text-muted-black hover:text-accent transition-colors"

@@ -43,6 +43,9 @@ const southera = localFont({
   src: "../../public/font/Southera.ttf",
   variable: "--font-southera",
   display: "swap",
+  // Only the signature and OG cards use it; preloading 150 KB on every page
+  // competes with the fonts that are actually above the fold.
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -59,11 +62,20 @@ export const metadata: Metadata = {
     site.name,
     "developer",
     "portfolio",
-    "kickstart-express",
-    "company-logos",
     "Recso",
+    "Slatey",
+    "aisprite",
+    "DukanBook",
+    "DealForge",
+    "Headcount",
+    "Kickstart Express",
+    "company-logos",
+    "Messy UI",
     "Next.js",
     "TypeScript",
+    "Rust",
+    "Python",
+    "self-hosted",
   ],
   alternates: {
     canonical: "/",
@@ -123,12 +135,18 @@ export default function RootLayout({
       <body
         className={`${geistMono.variable} ${playfairDisplay.variable} ${jost.variable} ${poppins.variable} ${southera.variable} ${geistSans.variable} antialiased`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:border focus:border-muted-black/30 focus:bg-background focus:px-3 focus:py-2 focus:font-mono focus:text-xs focus:text-foreground"
+        >
+          Skip to content
+        </a>
         <ThemeProvider>
           <PageTransition svg={<Logo />} animation="wipe" blocks={5}>
             <section className="page flex min-h-screen justify-center px-4 ">
               <div className="w-full max-w-100 md:max-w-150 flex flex-col min-h-screen">
                 <Navbar />
-                <main className="flex-1">{children}</main>
+                <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>
                 <SiteFooter />
               </div>
             </section>
@@ -137,7 +155,8 @@ export default function RootLayout({
           <Terminal />
           <MotionSync />
         </ThemeProvider>
-        <Analytics />
+        {/* Vercel serves the insights script; locally it would only 404. */}
+        {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>
   );

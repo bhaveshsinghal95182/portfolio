@@ -25,7 +25,30 @@ export interface Education {
   detail?: string;
 }
 
+/** Contact details used by the downloadable PDF. The page has its own links. */
+export const contact = {
+  phone: "+91 9518208482",
+  email: "worknbhavesh@gmail.com",
+  site: "https://bhavesh.recso.dev",
+  github: "https://github.com/bhaveshsinghal95182",
+  linkedin: "https://www.linkedin.com/in/bhavesh-singhal-2400a4328",
+} as const;
+
+export const summary =
+  "CS student at MMDU Haryana building developer tools, desktop apps and small products. Creator of Recso, Slatey and aisprite.";
+
 export const experience: Experience[] = [
+  {
+    title: "Freelance Frontend Developer",
+    company: "Self-employed",
+    location: "Remote",
+    duration: "Jun 2024 – Present",
+    highlights: [
+      "Delivered two production waitlist landing pages (Speechy, PureHydro), bringing in 500+ email signups in their first month.",
+      "Added Upstash Redis rate limiting that held up through 1000+ concurrent requests.",
+      "Brought Core Web Vitals to 98+ Lighthouse with lazy loading, code splitting and next-gen image compression.",
+    ],
+  },
   {
     title: "Software Engineer Intern",
     company: "Supertek Glassware",
@@ -43,6 +66,7 @@ export const education: Education[] = [
   {
     qualification: "B.Tech, Computer Science",
     institution: "MMDU Haryana",
+    detail: "2023 – 2027",
   },
 ];
 
@@ -74,12 +98,34 @@ export const certifications: Certification[] = [
 export const skills: { group: string; items: string[] }[] = [
   {
     group: "Languages",
-    items: ["TypeScript", "JavaScript", "Rust", "Python", "SQL"],
+    items: ["TypeScript", "JavaScript", "Rust", "Python", "Go", "C++", "SQL"],
   },
   {
     group: "Frontend",
-    items: ["React", "Next.js", "Tailwind CSS", "GSAP", "Motion"],
+    items: [
+      "React",
+      "Next.js",
+      "Tailwind CSS",
+      "GSAP",
+      "Motion",
+      "Electron",
+      "Tauri",
+    ],
   },
-  { group: "Backend", items: ["Node.js", "Express", "REST APIs", "Prisma"] },
-  { group: "Tooling", items: ["Docker", "Git", "pnpm", "Vercel"] },
+  {
+    group: "Backend",
+    items: [
+      "Node.js",
+      "Express",
+      "FastAPI",
+      "PostgreSQL",
+      "MongoDB",
+      "Redis",
+      "Prisma",
+    ],
+  },
+  {
+    group: "Tooling",
+    items: ["Docker", "Nginx", "Linux", "Git", "pnpm", "Vercel", "Figma"],
+  },
 ];

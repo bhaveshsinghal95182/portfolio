@@ -65,7 +65,6 @@ export default function Signature() {
         ref={svgRef}
         color="currentColor"
         width="100%"
-        height="auto"
         aria-label="Bhavesh Singhal"
         role="img"
         className="w-full max-w-[300px] h-auto text-muted-black"

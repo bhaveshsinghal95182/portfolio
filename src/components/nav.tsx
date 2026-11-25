@@ -16,7 +16,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav>
+    <nav aria-label="Primary">
       <div className="nav-links">
         {links.map(({ href, label }) => {
           const isActive =

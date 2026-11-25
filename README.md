@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# bhavesh.recso.dev
 
-## Getting Started
+Personal site: [bhavesh.recso.dev](https://bhavesh.recso.dev).
 
-First, run the development server:
+Next.js 16 (App Router), React 19, Tailwind CSS 4, MDX. Project download and
+star counts come from the npm and GitHub APIs and revalidate once a day.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Running it
+
+```sh
+pnpm install
+pnpm dev      # http://localhost:3000
+pnpm build
+pnpm lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Open a project page
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+pnpm project recso
+pnpm project "company logos" --local
+pnpm project --list
+pnpm project recso --print      # print the URL, do not open a browser
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`pnpm project` reads the project list from `src/lib/projects.ts`. If a dev
+server answers on port 3000 it opens the local page, otherwise the deployed
+site. `--live` forces production.
 
-## Learn More
+To use it from any directory, link it once:
 
-To learn more about Next.js, take a look at the following resources:
+```sh
+pnpm link --global
+portfolio recso
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Where the content lives
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| What | File |
+| --- | --- |
+| Name, links, description | `src/lib/site.ts` |
+| Projects and case studies | `src/lib/projects.ts` |
+| Writing entries | `src/lib/posts.ts` + `src/content/posts/*.mdx` |
+| Resume page | `src/lib/resume.ts` |
+| Resume download | `public/resume.pdf` |
 
-## Deploy on Vercel
+Adding a project means one object in `src/lib/projects.ts`. A post needs the
+`.mdx` file and an entry in `src/lib/posts.ts`. Both feed the sitemap, the
+command palette and the terminal automatically.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Resume PDF
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`public/resume.pdf` is generated from `src/lib/resume.ts` and the featured
+projects, so the page and the download stay in step.
+
+```sh
+pnpm resume:pdf
+```
+
+It needs Chrome or Chromium. Set `CHROME_PATH` if the binary is not in a
+standard location.
+
+## Environment
+
+- `NEXT_PUBLIC_SITE_URL` — the real domain. Drives canonical URLs, the sitemap,
+  RSS and OG images. Without it the site falls back to the Vercel URL, then
+  localhost.
+- `GITHUB_TOKEN` — optional. Lifts the GitHub API rate limit from 60 to 5000
+  requests an hour.
+
+## Live numbers
+
+`src/lib/stats.ts` owns every outbound call. Failures return `null`, and the
+UI falls back to the static milestone on each project rather than breaking the
+page.
